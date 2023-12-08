@@ -12,51 +12,51 @@ import copy, math
 
 class Operable :
     def __add__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"+",exp)
 
     def __sub__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"-",exp)
 
     def __mul__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"*",exp)
 
     def __mul__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"*",exp)
 
     def __eq__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"==",exp)
 
     def __ne__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"!=",exp)
 
     def __lt__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"<",exp)
 
     def __le__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"<=",exp)
 
     def __gt__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,">",exp)
 
     def __ge__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,">=",exp)
 
     def __and__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"&",exp)
 
     def __or__(self, exp) :
-        if isinstance(exp, int) : exp = IntVar("_",exp,exp)
+        if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"|",exp)
 
 #====================================================================
@@ -67,10 +67,10 @@ class IntVar (Operable) :
     VIEW_NAME, VIEW_VALUE, VIEW_MIX = 1,2,3
 
     #--------------------------------------------------------------
-    def __init__(self, name, min=-INFINITE, max=INFINITE) -> None:
-        self.name   = name
+    def __init__(self, min=-INFINITE, max=INFINITE, name='_') -> None:
         self.min    = min
         self.max    = max
+        self.name   = name
         self.view   = self.VIEW_MIX
 
     #--------------------------------------------------------------
@@ -226,6 +226,8 @@ class Expression (Operable) :
 
     #--------------------------------------------------------------
     def project(self, nmin, nmax) :
+        if nmin > nmax : return False
+
         [lmin,lmax] = [self.exp1.min, self.exp1.max]
         [rmin,rmax] = [self.exp2.min, self.exp2.max]
 
@@ -410,10 +412,10 @@ class SearchInstance :
                 if self.glob.sols == [] :
                     if self.isMaximizing() :
                         self.glob.optc = Constraint(
-                            self.glob.func[1] > IntVar('@', val, IntVar.INFINITE) )
+                            self.glob.func[1] > IntVar(val, IntVar.INFINITE) )
                     else :
                         self.glob.optc = Constraint(
-                            self.glob.func[1] < IntVar('@', -IntVar.INFINITE, val) )
+                            self.glob.func[1] < IntVar(-IntVar.INFINITE, val) )
                 else :
                     if self.isMaximizing() :
                         self.glob.optc.exp.exp2.setge( val )
@@ -456,11 +458,21 @@ def solveModel(vars, cons, func=[0,None], tops=1) :
 
 #--------------------------------------------------------------
 
-def IntVarArray(n,prefix,min,max) :
+def IntVarArray(n,min,max,prefix='_') :
     vs = []
     for i in range(n) :
-        vs.append(IntVar(prefix+str(i),min,max))
+        name = prefix+str(i) if prefix != '_' else '_'
+        vs.append(IntVar(min,max,name))
     return vs
+
+#--------------------------------------------------------------
+
+def printvars(ls, view=IntVar.VIEW_MIX) :
+    print("[ ",end="")
+    for l in ls : 
+        l.view = view
+        print(l,end=" ")
+    print("]")
 
 #--------------------------------------------------------------
 
@@ -490,15 +502,6 @@ def sum(vars) :
     for i in range(1,len(vars)):
         exp = exp + vars[i]
     return exp
-
-#--------------------------------------------------------------
-
-def printvars(ls, view=IntVar.VIEW_MIX) :
-    print("[ ",end="")
-    for l in ls : 
-        l.view = view
-        print(l,end=" ")
-    print("]")
 
 #--------------------------------------------------------------
 
