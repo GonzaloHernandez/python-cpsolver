@@ -71,6 +71,8 @@ class IntVar (Operable) :
         self.min    = min
         self.max    = max
         self.name   = name
+        self.props  = []
+        self.stable = True
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
@@ -133,6 +135,10 @@ class IntVar (Operable) :
             if id(v)==id(self) :
                 return localvars[i]
         return self
+
+    def subscribeProp(self, prop) :
+        if not prop in self.props :
+            self.props.append(prop)
 
 #====================================================================
 
@@ -349,6 +355,11 @@ class Expression (Operable) :
 
         return Expression(exp1, self.oper, exp2)
 
+    #--------------------------------------------------------------
+    def subsribeProp(self,prop) :
+        self.exp1.subscribeProp(prop)
+        self.exp2.subscribeProp(prop)
+
 #====================================================================
 
 class Constraint :
@@ -364,6 +375,9 @@ class Constraint :
     
     def match(self, localvars, globalvars) :
         return Constraint(self.exp.match(localvars, globalvars))
+    
+    def subsribeProp(self) :
+        self.exp.subscribeProp(self)
 
 #====================================================================
 

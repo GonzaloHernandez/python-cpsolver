@@ -47,5 +47,3 @@ for r in range(9) :
         v = S[0][r*9+c]
         print(v.toStr(IntVar.PRINT_VALUE), end=' ')
     print()
-
-
