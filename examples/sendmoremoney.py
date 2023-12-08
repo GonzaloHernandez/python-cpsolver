@@ -18,5 +18,5 @@ C = [
 
 S = solveModel(V, C)
 
-for s in S :
-    printvars(s)
+for _ in S :
+    printvars(_)

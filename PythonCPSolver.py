@@ -63,19 +63,27 @@ class Operable :
 
 class IntVar (Operable) :
     
-    INFINITE                        = 2147483647
-    VIEW_NAME, VIEW_VALUE, VIEW_MIX = 1,2,3
+    INFINITE                            = 2147483647
+    PRINT_NAME, PRINT_VALUE, PRINT_MIX  = 1,2,3
 
     #--------------------------------------------------------------
     def __init__(self, min=-INFINITE, max=INFINITE, name='_') -> None:
         self.min    = min
         self.max    = max
         self.name   = name
-        self.view   = self.VIEW_MIX
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
-        if self.view == self.VIEW_VALUE :
+        if self.isFailed() :
+            return f"{self.name}()"
+        elif self.isAssigned() :
+            return f"{self.name}{{{str(self.min)}}}"
+        else :
+            return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"        
+
+    #--------------------------------------------------------------
+    def toStr(self, view=PRINT_MIX) :
+        if view == self.PRINT_VALUE :
             if self.isFailed() :
                 return "_"
             elif self.isAssigned() :
@@ -83,19 +91,19 @@ class IntVar (Operable) :
             else :
                 return f"{{{str(self.min)}..{str(self.max)}}}"
             
-        elif self.view == self.VIEW_NAME :
+        elif view == self.PRINT_NAME :
             if self.name == "_" :
                 return str(self.min)
             else :
                 return str(self.name)
 
-        elif self.view == self.VIEW_MIX :
+        elif view == self.PRINT_MIX :
             if self.isFailed() :
                 return f"{self.name}()"
             elif self.isAssigned() :
                 return f"{self.name}{{{str(self.min)}}}"
             else :
-                return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"        
+                return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"           
 
     #--------------------------------------------------------------
     def setge(self, val) :
@@ -226,8 +234,6 @@ class Expression (Operable) :
 
     #--------------------------------------------------------------
     def project(self, nmin, nmax) :
-        if nmin > nmax : return False
-
         [lmin,lmax] = [self.exp1.min, self.exp1.max]
         [rmin,rmax] = [self.exp2.min, self.exp2.max]
 
@@ -237,14 +243,24 @@ class Expression (Operable) :
                     if self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
                     if self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
                 if nmin == nmax == 0 :
-                    if lmin == lmax == rmin == rmax :
+                    if rmin == rmax == lmin :
                         if self.exp1.project( lmin+1 , lmax ) is False : return False
+                    if rmin == rmax == lmax :
+                        if self.exp1.project( lmin , lmax-1 ) is False : return False
+                    if lmin == lmax == rmin :
                         if self.exp2.project( rmin+1 , rmax ) is False : return False
+                    if lmin == lmax == rmax :
+                        if self.exp2.project( rmin , rmax-1 ) is False : return False
             case "!=" : 
                 if nmin == nmax == 1 :
-                    if lmin == lmax == rmin == rmax :
+                    if rmin == rmax == lmin :
                         if self.exp1.project( lmin+1 , lmax ) is False : return False
+                    if rmin == rmax == lmax :
+                        if self.exp1.project( lmin , lmax-1 ) is False : return False
+                    if lmin == lmax == rmin :
                         if self.exp2.project( rmin+1 , rmax ) is False : return False
+                    if lmin == lmax == rmax :
+                        if self.exp2.project( rmin , rmax-1 ) is False : return False
                 if nmin == nmax == 0 :
                     if self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
                     if self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
@@ -278,6 +294,8 @@ class Expression (Operable) :
                     if self.exp2.project( lmin+1, rmax   ) is False : return False
 
             case "&" :
+                if nmin > nmax : return False  # line pending to double check
+
                 if nmin == nmax == 1 :
                     if self.exp1.project( 1, lmax ) is False : return False
                     if self.exp2.project( 1, rmax ) is False : return False
@@ -467,11 +485,10 @@ def IntVarArray(n,min,max,prefix='_') :
 
 #--------------------------------------------------------------
 
-def printvars(ls, view=IntVar.VIEW_MIX) :
+def printvars(vars, printview=IntVar.PRINT_MIX) :
     print("[ ",end="")
-    for l in ls : 
-        l.view = view
-        print(l,end=" ")
+    for v in vars : 
+        print(v.toStr(printview), end=" ")
     print("]")
 
 #--------------------------------------------------------------
