@@ -1,4 +1,4 @@
-import os,sys
+import os,sys, time
 os.system("clear")
 
 sys.path.insert(1,".")
@@ -37,13 +37,18 @@ for i in range(9) :
     C.append( Constraint( alldifferent(Varea[i])) )
 
 # Custom constraints / Values of game
-C.append( Constraint( V[4]==7) )
+C.append( Constraint( V[ 4]==7) )
+C.append( Constraint( V[10]==2) )
+C.append( Constraint( V[75]==8) )
 
-
+t1 = time.time()
 S = solveModel( V, C )
+t2 = time.time()
 
 for r in range(9) :
     for c in range(9) :
         v = S[0][r*9+c]
         print(v.toStr(IntVar.PRINT_VALUE), end=' ')
     print()
+
+print(f"Total time: {t2-t1}")

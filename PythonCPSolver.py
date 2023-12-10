@@ -71,8 +71,6 @@ class IntVar (Operable) :
         self.min    = min
         self.max    = max
         self.name   = name
-        self.props  = []
-        self.stable = True
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
@@ -129,16 +127,13 @@ class IntVar (Operable) :
     def project(self, newmin, newmax) :
         self.setge(newmin)
         self.setle(newmax)
+        if newmin > newmax : return False
 
-    def match(self, localvars, globalvars) :
+    def match(self, localvars, globalvars ) :
         for i,v in enumerate(globalvars) :
             if id(v)==id(self) :
                 return localvars[i]
         return self
-
-    def subscribeProp(self, prop) :
-        if not prop in self.props :
-            self.props.append(prop)
 
 #====================================================================
 
@@ -240,6 +235,8 @@ class Expression (Operable) :
 
     #--------------------------------------------------------------
     def project(self, nmin, nmax) :
+        if nmin > nmax : return False
+
         [lmin,lmax] = [self.exp1.min, self.exp1.max]
         [rmin,rmax] = [self.exp2.min, self.exp2.max]
 
@@ -300,8 +297,6 @@ class Expression (Operable) :
                     if self.exp2.project( lmin+1, rmax   ) is False : return False
 
             case "&" :
-                if nmin > nmax : return False  # line pending to double check
-
                 if nmin == nmax == 1 :
                     if self.exp1.project( 1, lmax ) is False : return False
                     if self.exp2.project( 1, rmax ) is False : return False
@@ -355,11 +350,6 @@ class Expression (Operable) :
 
         return Expression(exp1, self.oper, exp2)
 
-    #--------------------------------------------------------------
-    def subsribeProp(self,prop) :
-        self.exp1.subscribeProp(prop)
-        self.exp2.subscribeProp(prop)
-
 #====================================================================
 
 class Constraint :
@@ -374,11 +364,8 @@ class Constraint :
         return self.exp.project(1,1)
     
     def match(self, localvars, globalvars) :
-        return Constraint(self.exp.match(localvars, globalvars))
+        return Constraint( self.exp.match(localvars, globalvars) )
     
-    def subsribeProp(self) :
-        self.exp.subscribeProp(self)
-
 #====================================================================
 
 class Globals :
@@ -420,15 +407,34 @@ class SearchInstance :
     
     def getFun(self) :
         return self.glob.func[1]
+    
+    def propagate(self) :
+        t1 = 0
+        for v in self.vars : t1 += v.max - v.min + 1
+
+        self.q = []
+        for c in self.cons :
+            self.q.append(c)
+        
+        if not self.glob.optc is None :
+            c = self.glob.optc.match(self.vars, self.glob.vars)
+            self.q.append(c)
+
+        while self.q != [] :
+            c = self.q.pop(0)
+            if not c.prune() : return False
+
+        t2 = 0
+        for v in self.vars : t2 += v.max - v.min + 1
+
+        if t2 < t1 :
+            return self.propagate()
+        else :
+            return True
 
     #--------------------------------------------------------------
     def search(self) :
-        for c in self.cons :
-            if c.prune() is False : return []
-
-        if not self.glob.optc is None :
-            c = self.glob.optc.match(self.vars, self.glob.vars)
-            c.prune()
+        if not self.propagate() : return []
 
         allAssigned = True
         for v in self.vars :

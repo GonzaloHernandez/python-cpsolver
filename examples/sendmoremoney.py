@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,time
 os.system("clear")
 
 sys.path.insert(1,".")
@@ -16,7 +16,11 @@ C = [
       m*10000 + o*1000 + n*100 + e*10 + y*1 )
 ]
 
+t1 = time.time()
 S = solveModel(V, C)
+t2 = time.time()
 
 for _ in S :
     printvars(_)
+
+print(f"total time {t2-t1}")

@@ -4,16 +4,18 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver import *
 
-x = IntVar(5,7,'x')
-y = IntVar(5,7,'y')
-z = IntVar(5,7,'z')
-u = IntVar()
+x = IntVar(0,5,'x')
+y = IntVar(0,3,'y')
+z = IntVar(0,1,'z')
 
-c = Constraint( u == count( [x,y,z] , 6 ))
+c = Constraint( x & y )
+d = Constraint( x == 1 )
+f = minimize(z-y)
 
 S = solveModel(
-    [x,y,z,u],
+    [x,y,z],
     [c], 
+    f,
     tops=0
 )
 
