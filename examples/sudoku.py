@@ -32,14 +32,14 @@ for r1 in range(3) :
 C = []
 
 for i in range(9) :
-    C.append( Constraint( alldifferent(Vrows[i])) )
-    C.append( Constraint( alldifferent(Vcols[i])) )
-    C.append( Constraint( alldifferent(Varea[i])) )
+    C.append( AllDifferent(Vrows[i]) )
+    C.append( AllDifferent(Vcols[i]) )
+    C.append( AllDifferent(Varea[i]) )
 
 # Custom constraints / Values of game
-C.append( Constraint( V[ 4]==7) )
-C.append( Constraint( V[10]==2) )
-C.append( Constraint( V[75]==8) )
+C.append( Equation( V[ 4]==7) )
+C.append( Equation( V[10]==2) )
+C.append( Equation( V[75]==8) )
 
 t1 = time.time()
 S = solveModel( V, C )

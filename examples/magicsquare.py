@@ -7,7 +7,7 @@ from PythonCPSolver import *
 n = 4
 
 V = IntVarArray(n*n,1,n*n)
-t = IntVar()
+t = IntVar(1)
 
 Vrows = []
 Vcols = []
@@ -27,18 +27,20 @@ for r in range(n) :
 
 C = []
 
-C.append( Constraint( alldifferent(V)) )
+C.append( AllDifferent(V) )
 
 for i in range(n) :
-    C.append( Constraint( sum(Vrows[i])==t  ) )
-    C.append( Constraint( sum(Vcols[i])==t  ) )
+    C.append( Linear(Vrows[i], t) )
+    C.append( Linear(Vcols[i], t) )
 
-C.append( Constraint( sum(Vdia1)==t  ) )
-C.append( Constraint( sum(Vdia2)==t  ) )
+C.append( Linear(Vdia1, t) )
+C.append( Linear(Vdia2, t) )
 
-C.append( Constraint( t == (n*n*(n*n+1)//2)//n ) ) 
+C.append( Equation( t == (n*n*(n*n+1)//2)//n ) ) 
 
+t1 = time.time()
 S = solveModel( V+[t], C )
+t2 = time.time()
 
 print(f"Sum = {S[0][n*n].toStr(IntVar.PRINT_VALUE)}\n")
 
@@ -48,3 +50,4 @@ for r in range(n) :
         print(f"{v.toStr(IntVar.PRINT_VALUE):>2}", end=' ')
     print()
 
+print(f"total time: {t2-t1}")

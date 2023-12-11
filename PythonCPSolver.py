@@ -127,7 +127,10 @@ class IntVar (Operable) :
     def project(self, newmin, newmax) :
         self.setge(newmin)
         self.setle(newmax)
-        if newmin > newmax : return False
+        if newmin > newmax : 
+            return False
+        else :
+            return True
 
     def match(self, localvars, globalvars ) :
         for i,v in enumerate(globalvars) :
@@ -243,84 +246,84 @@ class Expression (Operable) :
         match self.oper :
             case "==" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
-                    if self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
+                    if not self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) : return False
+                    if not self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) : return False
                 if nmin == nmax == 0 :
                     if rmin == rmax == lmin :
-                        if self.exp1.project( lmin+1 , lmax ) is False : return False
+                        if not self.exp1.project( lmin+1 , lmax ) : return False
                     if rmin == rmax == lmax :
-                        if self.exp1.project( lmin , lmax-1 ) is False : return False
+                        if not self.exp1.project( lmin , lmax-1 ) : return False
                     if lmin == lmax == rmin :
-                        if self.exp2.project( rmin+1 , rmax ) is False : return False
+                        if not self.exp2.project( rmin+1 , rmax ) : return False
                     if lmin == lmax == rmax :
-                        if self.exp2.project( rmin , rmax-1 ) is False : return False
+                        if not self.exp2.project( rmin , rmax-1 ) : return False
             case "!=" : 
                 if nmin == nmax == 1 :
                     if rmin == rmax == lmin :
-                        if self.exp1.project( lmin+1 , lmax ) is False : return False
+                        if not self.exp1.project( lmin+1 , lmax ) : return False
                     if rmin == rmax == lmax :
-                        if self.exp1.project( lmin , lmax-1 ) is False : return False
+                        if not self.exp1.project( lmin , lmax-1 ) : return False
                     if lmin == lmax == rmin :
-                        if self.exp2.project( rmin+1 , rmax ) is False : return False
+                        if not self.exp2.project( rmin+1 , rmax ) : return False
                     if lmin == lmax == rmax :
-                        if self.exp2.project( rmin , rmax-1 ) is False : return False
+                        if not self.exp2.project( rmin , rmax-1 ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
-                    if self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) is False : return False
+                    if not self.exp1.project( max(lmin,rmin), min(lmax,rmax) ) : return False
+                    if not self.exp2.project( max(lmin,rmin), min(lmax,rmax) ) : return False
             case "<" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( lmin  , rmax-1 ) is False : return False
-                    if self.exp2.project( lmin+1, rmax   ) is False : return False
+                    if not self.exp1.project( lmin  , rmax-1 ) : return False
+                    if not self.exp2.project( lmin+1, rmax   ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( rmin, lmax ) is False : return False
-                    if self.exp2.project( rmin, lmax ) is False : return False
+                    if not self.exp1.project( rmin, lmax ) : return False
+                    if not self.exp2.project( rmin, lmax ) : return False
             case ">" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( rmin+1, lmax   ) is False : return False
-                    if self.exp2.project( rmin  , lmax-1 ) is False : return False
+                    if not self.exp1.project( rmin+1, lmax   ) : return False
+                    if not self.exp2.project( rmin  , lmax-1 ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( lmin, rmax ) is False : return False
-                    if self.exp2.project( lmin, rmax ) is False : return False
+                    if not self.exp1.project( lmin, rmax ) : return False
+                    if not self.exp2.project( lmin, rmax ) : return False
             case "<=" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( lmin, rmax ) is False : return False
-                    if self.exp2.project( lmin, rmax ) is False : return False
+                    if not self.exp1.project( lmin, rmax ) : return False
+                    if not self.exp2.project( lmin, rmax ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( rmin+1, lmax   ) is False : return False
-                    if self.exp2.project( rmin  , lmax-1 ) is False : return False
+                    if not self.exp1.project( rmin+1, lmax   ) : return False
+                    if not self.exp2.project( rmin  , lmax-1 ) : return False
             case ">=" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( rmin, lmax ) is False : return False
-                    if self.exp2.project( rmin, lmax ) is False : return False
+                    if not self.exp1.project( rmin, lmax ) : return False
+                    if not self.exp2.project( rmin, lmax ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( lmin  , rmax-1 ) is False : return False
-                    if self.exp2.project( lmin+1, rmax   ) is False : return False
+                    if not self.exp1.project( lmin  , rmax-1 ) : return False
+                    if not self.exp2.project( lmin+1, rmax   ) : return False
 
             case "&" :
                 if nmin == nmax == 1 :
-                    if self.exp1.project( 1, lmax ) is False : return False
-                    if self.exp2.project( 1, rmax ) is False : return False
+                    if not self.exp1.project( 1, lmax ) : return False
+                    if not self.exp2.project( 1, rmax ) : return False
                 if nmin == nmax == 0 :
                     if rmin == rmax == 1 :
-                        if self.exp1.project( lmin, 0 ) is False : return False
+                        if not self.exp1.project( lmin, 0 ) : return False
                     if lmin == lmax == 1 :
-                        if self.exp2.project( rmin, 0 ) is False : return False
+                        if not self.exp2.project( rmin, 0 ) : return False
             case "|" :
                 if nmin == nmax == 1 :
                     if rmin == rmax == 0 :
-                        if self.exp1.project( 1, lmax ) is False : return False
+                        if not self.exp1.project( 1, lmax ) : return False
                     if lmin == lmax == 0 :
-                        if self.exp2.project( 1, rmax ) is False : return False
+                        if not self.exp2.project( 1, rmax ) : return False
                 if nmin == nmax == 0 :
-                    if self.exp1.project( lmin, 0 ) is False : return False
-                    if self.exp2.project( rmin, 0 ) is False : return False
+                    if not self.exp1.project( lmin, 0 ) : return False
+                    if not self.exp2.project( rmin, 0 ) : return False
 
             case "+" :
-                if self.exp1.project( nmin-rmax , nmax-rmin ) is False : return False
-                if self.exp2.project( nmin-lmax , nmax-lmin ) is False : return False
+                if not self.exp1.project( nmin-rmax , nmax-rmin ) : return False
+                if not self.exp2.project( nmin-lmax , nmax-lmin ) : return False
             case "-" :
-                if self.exp1.project( nmin+rmin , nmax+rmax ) is False : return False
-                if self.exp2.project( lmin-nmax , lmax-nmin ) is False : return False
+                if not self.exp1.project( nmin+rmin , nmax+rmax ) : return False
+                if not self.exp2.project( lmin-nmax , lmax-nmin ) : return False
             case "*" :
                 if rmin == 0 : rmin = 1
                 if rmax == 0 : rmax = 1
@@ -330,7 +333,7 @@ class Expression (Operable) :
                     max(math.ceil(nmin/rmin), math.ceil(nmin*rmax), 
                         math.ceil(nmax*rmin), math.ceil(nmax*rmax))
                 ]
-                if self.exp1.project(lmin, lmax) is False : return False
+                if not self.exp1.project(lmin, lmax) : return False
 
                 if lmin == 0 : lmin = 1
                 if lmax == 0 : lmax = 1
@@ -340,7 +343,7 @@ class Expression (Operable) :
                     max(math.ceil(nmin/lmin), math.ceil(nmin*lmax), 
                         math.ceil(nmax*lmin), math.ceil(nmax*lmax))
                 ]
-                if self.exp2.project(rmin, rmax) is False : return False
+                if not self.exp2.project(rmin, rmax) : return False
         return True
 
     #--------------------------------------------------------------
@@ -352,7 +355,7 @@ class Expression (Operable) :
 
 #====================================================================
 
-class Constraint :
+class Equation :
     def __init__(self, exp) -> None:
         self.exp = exp
 
@@ -364,8 +367,49 @@ class Constraint :
         return self.exp.project(1,1)
     
     def match(self, localvars, globalvars) :
-        return Constraint( self.exp.match(localvars, globalvars) )
+        return Equation( self.exp.match(localvars, globalvars) )
     
+#====================================================================
+
+class AllDifferent :
+    def __init__(self, vars) -> None:
+        self.vars = vars
+
+    def __str__(self) -> str:
+        return str(self.vars)
+    
+    def prune(self) :
+        for v1 in self.vars :
+            if v1.isAssigned() :
+                for v2 in self.vars :
+                    if id(v1) != id(v2) :
+                        if v1.min == v2.min :
+                            if not v2.project( v2.min+1 , v2.max ) : return False
+                        if v1.max == v2.max :
+                            if not v2.project( v2.min , v2.max-1 ) : return False
+        return True
+
+#====================================================================
+
+class Linear :
+    def __init__(self, vars, vart) -> None:
+        if isinstance(vart, int) : vart = IntVar(vart,vart)
+        self.vars   = vars
+        self.vart   = vart
+
+    def __str__(self) -> str:
+        return str(self.vars)+" = "+str(self.valt)
+    
+    def prune(self) :
+        for v1 in self.vars :
+            maxs, mins = 0, 0
+            for v2 in self.vars :
+                if id(v1) != id(v2) :
+                    maxs += v2.max
+                    mins += v2.min
+            if not v1.project( self.vart.min-maxs, self.vart.max-mins ) : return False
+        return True
+
 #====================================================================
 
 class Globals :
@@ -410,7 +454,7 @@ class SearchInstance :
     
     def propagate(self) :
         t1 = 0
-        for v in self.vars : t1 += v.max - v.min + 1
+        for v in self.vars : t1 += v.card()
 
         self.q = []
         for c in self.cons :
@@ -434,6 +478,8 @@ class SearchInstance :
 
     #--------------------------------------------------------------
     def search(self) :
+        if self.glob.done : return
+
         if not self.propagate() : return []
 
         allAssigned = True
@@ -449,10 +495,10 @@ class SearchInstance :
                 val = self.evaluateFun()
                 if self.glob.sols == [] :
                     if self.isMaximizing() :
-                        self.glob.optc = Constraint(
+                        self.glob.optc = Equation(
                             self.glob.func[1] > IntVar(val, IntVar.INFINITE) )
                     else :
-                        self.glob.optc = Constraint(
+                        self.glob.optc = Equation(
                             self.glob.func[1] < IntVar(-IntVar.INFINITE, val) )
                 else :
                     if self.isMaximizing() :
@@ -468,7 +514,6 @@ class SearchInstance :
 
         else :
             for i,v in enumerate(self.vars) :
-                if self.glob.done : break
                 if not v.isAssigned():
                     left    = self.clone()
                     right   = self.clone()
