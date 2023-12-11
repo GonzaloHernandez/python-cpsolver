@@ -1,14 +1,19 @@
 #====================================================================
-# 
-# Simple Constraint Programming Solver V1.1
+# Simple Constraint (Satisfaction/Optimization) Programming Solver 
+# Current version 1.2
+#
 # Gonzalo Hernandez
-# 
-# This file is inherited from solver.py
+# gonzalohernandez@hotmail.com
+# 2023
+#
+# Modules:
+#   PythonCPSolver
+#       engine.py
+#       propagators.py
+#       variables.py
 #====================================================================
 
-import copy, math
-
-#====================================================================
+import math
 
 class Operable :
     def __add__(self, exp) :
@@ -355,189 +360,11 @@ class Expression (Operable) :
 
 #====================================================================
 
-class Equation :
-    def __init__(self, exp) -> None:
-        self.exp = exp
-
-    def __str__(self) -> str:
-        return str(self.exp)
-    
-    def prune(self) :
-        self.exp.evaluate()
-        return self.exp.project(1,1)
-    
-    def match(self, localvars, globalvars) :
-        return Equation( self.exp.match(localvars, globalvars) )
-    
-#====================================================================
-
-class AllDifferent :
-    def __init__(self, vars) -> None:
-        self.vars = vars
-
-    def __str__(self) -> str:
-        return str(self.vars)
-    
-    def prune(self) :
-        for v1 in self.vars :
-            if v1.isAssigned() :
-                for v2 in self.vars :
-                    if id(v1) != id(v2) :
-                        if v1.min == v2.min :
-                            if not v2.project( v2.min+1 , v2.max ) : return False
-                        if v1.max == v2.max :
-                            if not v2.project( v2.min , v2.max-1 ) : return False
-        return True
-
-#====================================================================
-
-class Linear :
-    def __init__(self, vars, vart) -> None:
-        if isinstance(vart, int) : vart = IntVar(vart,vart)
-        self.vars   = vars
-        self.vart   = vart
-
-    def __str__(self) -> str:
-        return str(self.vars)+" = "+str(self.valt)
-    
-    def prune(self) :
-        for v1 in self.vars :
-            maxs, mins = 0, 0
-            for v2 in self.vars :
-                if id(v1) != id(v2) :
-                    maxs += v2.max
-                    mins += v2.min
-            if not v1.project( self.vart.min-maxs, self.vart.max-mins ) : return False
-        return True
-
-#====================================================================
-
-class Globals :
-    def __init__(self, optv, vars, func, sols, tops) -> None:
-        self.optv = optv    # Current optimization value
-        self.vars = vars    # Original variables
-        self.func = func    # Optimization function [type,expression]
-        self.optc = None    # Optimization (new) constraint
-        self.sols = sols    # Solutions found
-        self.tops = tops    # Amount of solutions required
-        self.done = False   # Flag to stop searching
-
-#====================================================================
-
-class SearchInstance :
-    def __init__(self, vars, cons, func, tops) -> None:
-        self.vars = vars
-        self.cons = cons
-        self.glob = Globals([0], vars, func, [], tops)
-    
-    def isOptimizing(self) :
-        return True if self.glob.func[0] > 0 else False
-
-    def isMinimizing(self) :
-        return True if self.glob.func[0] == 1 else False
-    
-    def isMaximizing(self) :
-        return True if self.glob.func[0] == 2 else False
-
-    def getFunValue(self) :
-        return self.glob.optv[0]
-
-    def evaluateFun(self) :
-        localfun = self.glob.func[1].match(self.vars, self.glob.vars)
-        return localfun.evaluate()[0]
-    
-    def setFunValue(self,v) :
-        self.glob.optv[0] = v
-    
-    def getFun(self) :
-        return self.glob.func[1]
-    
-    def propagate(self) :
-        t1 = 0
-        for v in self.vars : t1 += v.card()
-
-        self.q = []
-        for c in self.cons :
-            self.q.append(c)
-        
-        if not self.glob.optc is None :
-            c = self.glob.optc.match(self.vars, self.glob.vars)
-            self.q.append(c)
-
-        while self.q != [] :
-            c = self.q.pop(0)
-            if not c.prune() : return False
-
-        t2 = 0
-        for v in self.vars : t2 += v.max - v.min + 1
-
-        if t2 < t1 :
-            return self.propagate()
-        else :
-            return True
-
-    #--------------------------------------------------------------
-    def search(self) :
-        if self.glob.done : return
-
-        if not self.propagate() : return []
-
-        allAssigned = True
-        for v in self.vars :
-            if v.isFailed() :
-                return []
-            if not v.isAssigned() :
-                allAssigned = False
-                break
-
-        if allAssigned :
-            if self.isOptimizing() : 
-                val = self.evaluateFun()
-                if self.glob.sols == [] :
-                    if self.isMaximizing() :
-                        self.glob.optc = Equation(
-                            self.glob.func[1] > IntVar(val, IntVar.INFINITE) )
-                    else :
-                        self.glob.optc = Equation(
-                            self.glob.func[1] < IntVar(-IntVar.INFINITE, val) )
-                else :
-                    if self.isMaximizing() :
-                        self.glob.optc.exp.exp2.setge( val )
-                    else :
-                        self.glob.optc.exp.exp2.setle( val )
-
-                self.glob.sols = [ self.vars ]
-                self.setFunValue( val )
-            else : # Is satisfying
-                self.glob.sols.append(self.vars)
-                if len(self.glob.sols)==self.glob.tops : self.glob.done = True
-
-        else :
-            for i,v in enumerate(self.vars) :
-                if not v.isAssigned():
-                    left    = self.clone()
-                    right   = self.clone()
-
-                    left    .vars[i].setle(left .vars[i].min)
-                    right   .vars[i].setge(right.vars[i].min+1)
-                    
-                    left.search()
-                    right.search()
-                    break
-
-    #--------------------------------------------------------------
-    def clone(self) :
-        branch = copy.copy(self)
-        branch.vars, branch.cons = copy.deepcopy([self.vars, self.cons])
-        return branch
-
-#====================================================================
-
-def solveModel(vars, cons, func=[0,None], tops=1) :
-    model = copy.deepcopy([vars,cons,func])
-    s = SearchInstance(model[0],model[1],model[2],tops)
-    s.search()
-    return s.glob.sols
+def printvars(vars, printview=IntVar.PRINT_MIX) :
+    print("[ ",end="")
+    for v in vars : 
+        print(v.toStr(printview), end=" ")
+    print("]")
 
 #--------------------------------------------------------------
 
@@ -547,52 +374,3 @@ def IntVarArray(n,min,max,prefix='_') :
         name = prefix+str(i) if prefix != '_' else '_'
         vs.append(IntVar(min,max,name))
     return vs
-
-#--------------------------------------------------------------
-
-def printvars(vars, printview=IntVar.PRINT_MIX) :
-    print("[ ",end="")
-    for v in vars : 
-        print(v.toStr(printview), end=" ")
-    print("]")
-
-#--------------------------------------------------------------
-
-def count(vars,cond) :
-    exp = vars[0]==cond
-    for i in range(1,len(vars)):
-        exp = exp + (vars[i]==cond)
-    return exp
-
-#--------------------------------------------------------------
-
-def alldifferent(vars) :
-    exp = vars[0] if len(vars)==1 else None
-    for i in range(len(vars)-1):
-        for j in range(i+1,len(vars)):
-            if exp is None :
-                exp = (vars[i] != vars[j])
-            else :
-                exp = exp & (vars[i] != vars[j])
-
-    return exp
-
-#--------------------------------------------------------------
-
-def sum(vars) :
-    exp = vars[0]
-    for i in range(1,len(vars)):
-        exp = exp + vars[i]
-    return exp
-
-#--------------------------------------------------------------
-
-def minimize(exp) :
-    return [1,exp]
-
-#--------------------------------------------------------------
-
-def maximize(exp) :
-    return [2,exp]
-
-#====================================================================
