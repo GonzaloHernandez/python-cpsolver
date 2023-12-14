@@ -8,7 +8,7 @@
 #
 # Modules:
 #   PythonCPSolver
-#       engine.py
+#       engine.py (copy space)
 #       propagators.py
 #       variables.py
 #====================================================================
@@ -57,6 +57,7 @@ class SearchInstance :
     def getFun(self) :
         return self.glob.func[1]
     
+    #--------------------------------------------------------------
     def propagate(self) :
         t1 = 0
         for v in self.vars : t1 += v.card()

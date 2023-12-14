@@ -14,7 +14,7 @@ import os,sys,time
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver.engine import *
+from PythonCPSolverT.engine import *
 
 V = s,e,n,d,m,o,r,y = IntVarArray(8,0,9)
 

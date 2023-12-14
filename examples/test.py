@@ -14,18 +14,16 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver.engine import *
+from PythonCPSolverT.engine import *
 
-V = IntVarArray(5,1,10)
+V = IntVarArray(3,1,3)
 
 S = solveModel(
     V,
-    [ 
-        AllDifferent(V),
-        Linear(V,15),
-        Equation( (V[0]>=V[1]) & (V[1]>=V[2]) & (V[2]>=V[3]) & (V[3]>=V[4]))
+    [
+        AllDifferent(V)
     ], 
-    tops=1
+    tops=0
 )
 
 for s in S :
