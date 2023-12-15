@@ -358,8 +358,8 @@ class Expression (Operable) :
                 
                 [lmin,lmax] = [
                     min(nmin//rmin, nmin//rmax, nmax//rmin, nmax//rmax),
-                    max(math.ceil(nmin/rmin), math.ceil(nmin*rmax), 
-                        math.ceil(nmax*rmin), math.ceil(nmax*rmax))
+                    max(math.ceil(nmin/rmin), math.ceil(nmin/rmax), 
+                        math.ceil(nmax/rmin), math.ceil(nmax/rmax))
                 ]
                 if not self.exp1.project(lmin, lmax) : return False
 
@@ -368,8 +368,8 @@ class Expression (Operable) :
 
                 [rmin,rmax] = [
                     min(nmin//lmin, nmin//lmax, nmax//lmin, nmax//lmax),
-                    max(math.ceil(nmin/lmin), math.ceil(nmin*lmax), 
-                        math.ceil(nmax*lmin), math.ceil(nmax*lmax))
+                    max(math.ceil(nmin/lmin), math.ceil(nmin/lmax), 
+                        math.ceil(nmax/lmin), math.ceil(nmax/lmax))
                 ]
                 if not self.exp2.project(rmin, rmax) : return False
         return True

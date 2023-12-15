@@ -14,12 +14,12 @@ import os,sys, time
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver.engine import *
+from PythonCPSolverT.engine import *
 
-n = 4
+n = 5
 
 V = IntVarArray(n*n,1,n*n)
-t = IntVar(1)
+t = IntVar()
 
 Vrows = []
 Vcols = []

@@ -27,7 +27,6 @@ class Engine :
         self.optc   = None  # Optimization (new) constraint
         self.sols   = []    # Solutions found
         self.trail  = []    # Trail to UnDo purspose
-        self.vi     = 0
         self.done   = False
         self.bran   = Brancher(vars)
 
@@ -85,59 +84,54 @@ class Engine :
         while True :
             if self.done : return
 
-            self.propagate()
-
-            allAssigned = True
-            for v in self.vars :
-                if v.isFailed() :
-                    pass
-                if not v.isAssigned() :
-                    allAssigned = False
-                    break
-            
-            if allAssigned :
-                if self.isOptimizing() : 
-                    val = self.evaluateFun()
-                    if self.sols == [] :
-                        if self.isMaximizing() :
-                            self.optc = Equation(
-                                self.func[1] > IntVar(val, IntVar.INFINITE) )
+            if self.propagate() : 
+                allAssigned = True
+                for v in self.vars :
+                    if not v.isAssigned() :
+                        allAssigned = False
+                        break
+                
+                if allAssigned :
+                    if self.isOptimizing() : 
+                        val = self.evaluateFun()
+                        if self.sols == [] :
+                            if self.isMaximizing() :
+                                self.optc = Equation(
+                                    self.func[1] > IntVar( val, IntVar.INFINITE, engine=self) )
+                            else :
+                                self.optc = Equation(
+                                    self.func[1] < IntVar(-IntVar.INFINITE, val, engine=self) )
                         else :
-                            self.optc = Equation(
-                                self.func[1] < IntVar(-IntVar.INFINITE, val) )
-                    else :
-                        if self.isMaximizing() :
-                            self.optc.exp.exp2.setge( val )
-                        else :
-                            self.optc.exp.exp2.setle( val )
+                            if self.isMaximizing() :
+                                self.optc.exp.exp2.setge( val )
+                            else :
+                                self.optc.exp.exp2.setle( val )
 
-                    self.sols = [ self.vars ]
-                    self.setFunValue( val )
-                else : # Is satisfying
-                    s = []
-                    for v in self.vars :
-                        s.append( IntVar(v.min, v.max, v.name) )
+                        s = []
+                        for v in self.vars :
+                            s.append( IntVar(v.min, v.max, v.name) )
+                        self.sols = [ s ]
+                        self.setFunValue( val )
+                    else : # Is satisfying
+                        s = []
+                        for v in self.vars :
+                            s.append( IntVar(v.min, v.max, v.name) )
 
-                    self.sols.append( s )
-                    if len(self.sols)==self.tops : self.done = True
-            
-            dec = self.bran.branch()
+                        self.sols.append( s )
+                        if len(self.sols)==self.tops : self.done = True
+                
+                dec = self.bran.branch()
+            else :
+                dec = None
+
             if not self.makeDecision(dec) : return
 
     #--------------------------------------------------------------
     def makeDecision(self, dec) :
         if dec is None :
             if self.trail != [] :
-                step = self.trail.pop()
-                var,sid,val = step[0],step[1],step[2]
-                match(sid) :
-                    case Brancher.LEFT :
-                        var.min = val
-                        var = self.undo()
-                        if var is None : return False
-                    case Brancher.RIGHT :
-                        var.max = val
-
+                var = self.undo()
+                if var is None : return False
                 step = [var, Brancher.LEFT, var.min, False]
                 self.trail.append( step )
                 var.min += 1

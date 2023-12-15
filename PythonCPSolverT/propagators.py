@@ -56,6 +56,29 @@ class Linear :
 
 #====================================================================
 
+class LinearArgs :
+    def __init__(self, args, vars, vart) -> None:
+        if isinstance(vart, int) : vart = IntVar(vart,vart)
+        self.args   = args
+        self.vars   = vars
+        self.vart   = vart
+
+    def __str__(self) -> str:
+        return str(self.vars)+" = "+str(self.valt)
+    
+    def prune(self) :
+        for i1,v1 in enumerate(self.vars) :
+            maxs, mins = 0, 0
+            for i2,v2 in enumerate(self.vars) :
+                if id(v1) != id(v2) :
+                    maxs += v2.max * self.args[i2]
+                    mins += v2.min * self.args[i2]
+            if not v1.project( 
+                math.ceil((self.vart.min - maxs)/self.args[i1]), 
+                math.ceil((self.vart.max - mins)/self.args[i1])) : return False
+        return True
+
+#====================================================================
 class Equation :
     def __init__(self, exp) -> None:
         self.exp = exp
