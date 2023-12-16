@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.? In construction
+# Current version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -8,29 +8,30 @@
 #
 # Modules:
 #   PythonCPSolver
-#       engine-trail.py
+#       engine.py
 #       propagators.py
 #       variables.py
+#       brancer.py
 #====================================================================
 
 from PythonCPSolverT.propagators import *
 from PythonCPSolverT.brancher import *
 import copy
 
-class Engine :
-    def __init__(self, vars, cons, func, tops) -> None:
-        self.vars   = vars  # Variables and domains
-        self.cons   = cons  # Constraints
-        self.func   = func  # Optimization function [type, expression] 
-        self.tops   = tops  # Amount of solutions required
-        self.optv   = 0     # Current optimization value
-        self.optc   = None  # Optimization (new) constraint
-        self.sols   = []    # Solutions found
-        self.trail  = []    # Trail to UnDo purspose
-        self.done   = False
-        self.bran   = Brancher(vars)
+#====================================================================
 
-        for v in vars : v.setEngine(self)
+class Engine :
+    def __init__(self, vars, cons, func=[0,None]) -> None:
+        model = copy.deepcopy([vars,cons,func])
+        self.vars   = model[0]  # Variables and domains
+        self.cons   = model[1]  # Constraints
+        self.func   = model[2]  # Optimization function [type, expression] 
+        self.optc   = None      # Optimization (new) constraint
+        self.sols   = []        # Solutions found
+        self.trail  = []        # Trail to UnDo purspose
+        self.bran   = Brancher(self.vars)
+
+        for v in self.vars : v.setEngine(self)
 
     #--------------------------------------------------------------
     def isOptimizing(self) :
@@ -42,18 +43,12 @@ class Engine :
     def isMaximizing(self) :
         return True if self.func[0] == 2 else False
 
-    def getFunValue(self) :
-        return self.optv
-
     def evaluateFun(self) :
         localfun = self.func[1].match(self.vars, self.vars)
         return localfun.evaluate()[0]
     
-    def setFunValue(self,v) :
-        self.optv = v
-    
     def getFun(self) :
-        return self.func[1]
+        return self.optc
 
     #--------------------------------------------------------------
     def propagate(self) :
@@ -80,10 +75,8 @@ class Engine :
             return True
 
     #--------------------------------------------------------------
-    def search(self) :
+    def search(self, tops=1) :
         while True :
-            if self.done : return
-
             if self.propagate() : 
                 allAssigned = True
                 for v in self.vars :
@@ -111,20 +104,22 @@ class Engine :
                         for v in self.vars :
                             s.append( IntVar(v.min, v.max, v.name) )
                         self.sols = [ s ]
-                        self.setFunValue( val )
+                        # self.setFunValue( val )
                     else : # Is satisfying
                         s = []
                         for v in self.vars :
                             s.append( IntVar(v.min, v.max, v.name) )
 
                         self.sols.append( s )
-                        if len(self.sols)==self.tops : self.done = True
+                        if len(self.sols)==tops : 
+                            break
                 
                 dec = self.bran.branch()
             else :
                 dec = None
 
-            if not self.makeDecision(dec) : return
+            if not self.makeDecision(dec) : break
+        return self.sols
 
     #--------------------------------------------------------------
     def makeDecision(self, dec) :
@@ -162,19 +157,12 @@ class Engine :
 
 #====================================================================
 
-def solveModel(vars, cons, func=[0,None], tops=1) :
-    e = Engine(vars, cons, func, tops)
-    e.search()
-    return e.sols
-
-#--------------------------------------------------------------
-
-def minimize(exp) :
+def minimize(exp) -> Expression:
     return [1,exp]
 
 #--------------------------------------------------------------
 
-def maximize(exp) :
+def maximize(exp) -> Expression:
     return [2,exp]
 
 #====================================================================

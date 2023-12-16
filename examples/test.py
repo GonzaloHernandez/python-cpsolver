@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Testes with version 1.2
+# Testing version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -18,16 +18,17 @@ from PythonCPSolverT.engine import *
 
 V = x,y,z = IntVarArray(3,1,9)
 
-S = solveModel(
+e = Engine(
     V,
     [
-        # AllDifferent(V),
-        # Equation( x*2 + y*2 + z*2 == 8 )
-        Linear2( [2,2,2] , V, 9)
-    ], 
-    tops=0
+        Equation( x*20+y < y*z )
+    ],
+    minimize( sum(V) )
 )
 
-for s in S :
-    printvars(s)
+S = e.search(0)
 
+for s in S :
+    print( intVarArrayToStr(s) )
+
+print(e.getFun())

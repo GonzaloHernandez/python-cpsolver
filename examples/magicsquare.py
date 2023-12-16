@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Testes with version 1.2
+# Testing version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -51,7 +51,7 @@ C.append( Linear(Vdia2, t) )
 C.append( Equation( t == (n*n*(n*n+1)//2)//n ) ) 
 
 t1 = time.time()
-S = solveModel( V+[t], C )
+S = Engine( V+[t], C ).search()
 t2 = time.time()
 
 print(f"Sum = {S[0][n*n].toStr(IntVar.PRINT_VALUE)}\n")
@@ -63,3 +63,7 @@ for r in range(n) :
     print()
 
 print(f"total time: {t2-t1}")
+
+#====================================================================
+# Benchmarks:
+# n=6 in 100.79sg (MacBoock Pro 14, 2023)

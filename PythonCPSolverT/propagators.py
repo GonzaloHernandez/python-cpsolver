@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.2
+# Current version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -11,9 +11,12 @@
 #       engine.py
 #       propagators.py
 #       variables.py
+#       brancer.py
 #====================================================================
 
 from PythonCPSolverT.variables import *
+
+#====================================================================
 
 class AllDifferent :
     def __init__(self, vars) -> None:
@@ -95,7 +98,7 @@ class Equation :
     
 #====================================================================
 
-def count(vars,cond) :
+def count(vars,cond) -> Expression:
     exp = vars[0]==cond
     for i in range(1,len(vars)):
         exp = exp + (vars[i]==cond)
@@ -103,7 +106,7 @@ def count(vars,cond) :
 
 #--------------------------------------------------------------
 
-def alldifferent(vars) :
+def alldifferent(vars) -> Expression:
     exp = vars[0] if len(vars)==1 else None
     for i in range(len(vars)-1):
         for j in range(i+1,len(vars)):
@@ -116,7 +119,7 @@ def alldifferent(vars) :
 
 #--------------------------------------------------------------
 
-def sum(vars) :
+def sum(vars) -> Expression:
     exp = vars[0]
     for i in range(1,len(vars)):
         exp = exp + vars[i]

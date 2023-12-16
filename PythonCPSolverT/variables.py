@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.2
+# Current version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -11,11 +11,14 @@
 #       engine.py
 #       propagators.py
 #       variables.py
+#       brancer.py
 #====================================================================
 
 import math
 
 from PythonCPSolverT.brancher import *
+
+#====================================================================
 
 class Operable :
     def __add__(self, exp) :
@@ -118,17 +121,21 @@ class IntVar (Operable) :
                 return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"           
 
     #--------------------------------------------------------------
-    def setMin(self, min) :
-        if self.min != min :
-            step = [self, Brancher.LEFT, self.min, False]
-            self.engine.trail.append( step )
-        self.min = min
+    def setMin(self, nmin) :
+        if nmin  > self.max : return
+        if self.min == nmin : return
 
-    def setMax(self, max) :
-        if self.max != max :
-            step = [self, Brancher.RIGHT, self.max, False]
-            self.engine.trail.append( step )
-        self.max = max
+        step = [self, Brancher.LEFT, self.min, False]
+        self.engine.trail.append( step )
+        self.min = nmin
+
+    def setMax(self, nmax) :
+        if nmax  < self.min : return
+        if self.max == nmax : return
+
+        step = [self, Brancher.RIGHT, self.max, False]
+        self.engine.trail.append( step )
+        self.max = nmax
 
     #--------------------------------------------------------------
     def setge(self, val) :
@@ -149,16 +156,13 @@ class IntVar (Operable) :
     def evaluate(self) :
         return [self.min, self.max]
 
-    def project(self, newmin, newmax) :
-        self.setMin( max(self.min, newmin) )
-        self.setMax( min(self.max, newmax) )
+    def project(self, nmin, nmax) :
+        if nmin > nmax : return False
 
-        # self.setge(newmin)
-        # self.setle(newmax)
-        if newmin > newmax : 
-            return False
-        else :
-            return True
+        self.setMin( max(self.min, nmin) )
+        self.setMax( min(self.max, nmax) )
+
+        return True
 
     def match(self, localvars, globalvars ) :
         for i,v in enumerate(globalvars) :
@@ -383,17 +387,18 @@ class Expression (Operable) :
 
 #====================================================================
 
-def printvars(vars, printview=IntVar.PRINT_MIX) :
-    print("[ ",end="")
-    for v in vars : 
-        print(v.toStr(printview), end=" ")
-    print("]")
-
-#--------------------------------------------------------------
-
-def IntVarArray(n,min,max,prefix='_') :
+def IntVarArray(n,min,max,prefix='_') -> list:
     vs = []
     for i in range(n) :
         name = prefix+str(i) if prefix != '_' else '_'
         vs.append(IntVar(min,max,name))
     return vs
+
+#--------------------------------------------------------------
+
+def intVarArrayToStr(vars, printview=IntVar.PRINT_MIX) -> str:
+    text = "[ "
+    for v in vars : 
+        text += v.toStr(printview) + " "
+    text += "]"
+    return text

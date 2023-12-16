@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.2
+# Current version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -8,12 +8,15 @@
 #
 # Modules:
 #   PythonCPSolver
-#       engine.py (copy space)
+#       engine.py
 #       propagators.py
 #       variables.py
+#       brancer.py
 #====================================================================
 
 from PythonCPSolverT.variables import *
+
+#====================================================================
 
 class Brancher :
     LEFT    = 1

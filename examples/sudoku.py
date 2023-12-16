@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Testes with version 1.2
+# Testing version 1.3
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -53,8 +53,10 @@ C.append( Equation( V[ 4]==7) )
 C.append( Equation( V[10]==2) )
 C.append( Equation( V[75]==8) )
 
+F = maximize(V[0])
+
 t1 = time.time()
-S = solveModel( V, C )
+S = Engine( V, C, F ).search()
 t2 = time.time()
 
 for r in range(9) :
