@@ -32,6 +32,6 @@ class Brancher :
         for i,v in enumerate(self.vars) :
             if not v.isAssigned() :
                 self.curv = i
-                return [v,v.min]
+                return [v,v.min,i]
         return None
 

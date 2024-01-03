@@ -78,6 +78,7 @@ class Engine :
     def search(self, tops=1) :
         while True :
             if self.propagate() : 
+
                 allAssigned = True
                 for v in self.vars :
                     if not v.isAssigned() :
@@ -104,7 +105,6 @@ class Engine :
                         for v in self.vars :
                             s.append( IntVar(v.min, v.max, v.name) )
                         self.sols = [ s ]
-                        # self.setFunValue( val )
                     else : # Is satisfying
                         s = []
                         for v in self.vars :
