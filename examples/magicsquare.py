@@ -62,7 +62,7 @@ for r in range(n) :
         print(f"{v.toStr(IntVar.PRINT_VALUE):>2}", end=' ')
     print()
 
-print(f"total time: {t2-t1}")
+print(f"Total solutions: {len(S)}\nTotal time: {t2-t1}   ")
 
 #====================================================================
 # Benchmarks:

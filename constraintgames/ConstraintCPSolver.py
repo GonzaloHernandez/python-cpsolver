@@ -25,43 +25,7 @@ class EngineGame(Engine) :
         for i in range(self.n) : 
             self.BR.append([])
             self.cnt.append(0)
-    
-    # #--------------------------------------------------------------
-    # def search(self, i) :
-    #     self.glob.count += 1
-
-    #     for c in self.cons :
-    #         if c.prune() is False : 
-    #             return []
         
-    #     for v in self.vars :
-    #         if v.isFailed() :
-    #             return []
-        
-    #     if i==self.glob.n :
-    #         t = []
-    #         for v in self.vars : t.append(v.min)
-
-    #         self.checkNash(t,self.glob.n-1)
-    #         return [self.vars]
-    #     else :
-    #         self.glob.BR[i]   = []
-    #         self.glob.cnt[i]  = 1
-    #         for j in range(i+1,len(self.glob.V)) :
-    #             self.glob.cnt[i] *= self.glob.V[j].card()
-
-    #         for j in range(self.vars[i].min, self.vars[i].max+1) :
-    #             branch = self.clone()
-
-    #             branch.vars[i].setle(j)
-    #             branch.vars[i].setge(j)
-
-    #             branch.search(i+1)
-
-    #             if self.glob.cnt[i] <= 0 :
-    #                 self.checkEndOfTable(i)
-    #                 break
-    
     #--------------------------------------------------------------
     def search(self, tops=1) :
         # i = 0
@@ -89,11 +53,12 @@ class EngineGame(Engine) :
                     for v in self.vars :
                         s.append( IntVar(v.min, v.max, v.name) )
                     # self.sols.append( s )
+                    print(intVarArrayToStr(s))
 
-                    self.checkNash(s, self.n-1)
+                    # self.checkNash(s, self.n-1)
 
-                    if len(self.sols)==tops : 
-                        break
+                    # if len(self.sols)==tops : 
+                    #     break
                 
                 dec = self.bran.branch()
 
