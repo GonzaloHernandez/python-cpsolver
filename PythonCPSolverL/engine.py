@@ -14,8 +14,8 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolverT.propagators import *
-from PythonCPSolverT.brancher import *
+from PythonCPSolverL.propagators import *
+from PythonCPSolverL.brancher import *
 import copy
 
 #====================================================================
@@ -32,6 +32,10 @@ class Engine :
         self.bran   = Brancher(self.vars)
 
         for v in self.vars : v.setEngine(self)
+
+        self.lazzy  = Lazzy(self.vars)
+        self.lazzy.setEngine(self)
+        self.cons.append( self.lazzy )
 
     #--------------------------------------------------------------
     def isOptimizing(self) :
@@ -54,6 +58,8 @@ class Engine :
     def propagate(self) :
         t1 = 0
         for v in self.vars : t1 += v.card()
+        for lv in self.lazzy.lvars : 
+            for v in lv : t1 += v.card()
 
         self.q = []
         for c in self.cons :
@@ -67,7 +73,9 @@ class Engine :
             if not c.prune() : return False
 
         t2 = 0
-        for v in self.vars : t2 += v.max - v.min + 1
+        for v in self.vars : t2 += v.card()
+        for lv in self.lazzy.lvars : 
+            for v in lv : t2 += v.card()
 
         if t2 < t1 :
             return self.propagate()
@@ -125,12 +133,10 @@ class Engine :
     def makeDecision(self, dec) :
         if dec is None :
             if self.trail != [] :
+                self.lazzy.addNoGood(self.vars)
                 var = self.undo()
                 if var is None : return False
-                step = [var, Brancher.LEFT, var.min, False]
-                self.trail.append( step )
-                var.min += 1
-
+                
                 return True
             else :
                 return False

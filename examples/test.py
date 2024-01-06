@@ -14,21 +14,29 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolverT.engine import *
+from PythonCPSolverL.engine import *
 
-V = x,y,z = IntVarArray(3,1,9)
+x = IntVar(0,2,'x')
+y = IntVar(0,2,'y')
+
+# xs = IntVarArray( x.card(), 0,1, 'x')
+# ys = IntVarArray( y.card(), 0,1, 'y')
+
+# CL = []
+# for i,xi in enumerate(xs) :
+#     CL.append( Equation( xi == (x == i+x.min) ) )
+
+# for i,yi in enumerate(ys) :
+#     CL.append( Equation( yi == (y == i+y.min) ) )
 
 e = Engine(
-    V,
-    [
-        Equation( x*20+y < y*z )
-    ],
-    minimize( sum(V) )
+    [x,y],
+    [ 
+        # Lazzy( [x,y] ) 
+    ]
 )
 
 S = e.search(0)
 
 for s in S :
     print( intVarArrayToStr(s) )
-
-print(e.getFun())

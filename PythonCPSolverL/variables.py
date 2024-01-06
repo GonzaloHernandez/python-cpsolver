@@ -11,12 +11,12 @@
 #       engine.py
 #       propagators.py
 #       variables.py
-#       brancher.py
+#       brancer.py
 #====================================================================
 
 import math
 
-from PythonCPSolverT.brancher import *
+from PythonCPSolverL.brancher import *
 
 #====================================================================
 
@@ -149,6 +149,9 @@ class IntVar (Operable) :
     
     def isFailed(self) :
         return (self.min>self.max)
+    
+    def val(self) :
+        return self.min
     
     def card(self) :
         return self.max - self.min + 1
@@ -402,3 +405,4 @@ def intVarArrayToStr(vars, printview=IntVar.PRINT_MIX) -> str:
         text += v.toStr(printview) + " "
     text += "]"
     return text
+

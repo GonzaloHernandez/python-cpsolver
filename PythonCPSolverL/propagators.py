@@ -14,11 +14,16 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolverT.variables import *
+from PythonCPSolverL.variables import *
+
+
+class Propagator :
+    def setEngine(self, engine) :
+        pass
 
 #====================================================================
 
-class AllDifferent :
+class AllDifferent(Propagator) :
     def __init__(self, vars) -> None:
         self.vars = vars
 
@@ -38,7 +43,7 @@ class AllDifferent :
 
 #====================================================================
 
-class Linear :
+class Linear(Propagator) :
     def __init__(self, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.vars   = vars
@@ -59,7 +64,7 @@ class Linear :
 
 #====================================================================
 
-class LinearArgs :
+class LinearArgs(Propagator) :
     def __init__(self, args, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.args   = args
@@ -82,7 +87,8 @@ class LinearArgs :
         return True
 
 #====================================================================
-class Equation :
+
+class Equation(Propagator) :
     def __init__(self, exp) -> None:
         self.exp = exp
 
@@ -125,4 +131,59 @@ def sum(vars) -> Expression:
         exp = exp + vars[i]
     return exp
 
-#--------------------------------------------------------------
+#====================================================================
+
+class Lazzy(Propagator) :
+    def __init__(self,vars) -> None:
+        self.vars   = vars  # Real variables
+        self.lvars  = []    # Lazzy variables
+        self.lcons  = []    # Lazzy constraint to link real variables
+        self.ngood  = []    # No good constraints 
+        self.delta  = []
+
+        for v in self.vars :
+            lv = IntVarArray( v.card(), 0,1, '#' )
+            for i,vi in enumerate(lv) :
+                self.lcons.append( Equation(vi == (v == i+v.min)) )
+            self.lvars.append( lv )
+            self.delta.append( v.min )
+
+        # self.addNoGood( [self.lvars[0][1], self.lvars[1][1]] )
+
+    def __str__(self) -> str:
+        return "lazzyvars"
+
+    def prune(self) :
+        for c in self.lcons :
+            if not c.prune() : return False
+
+        for ng in self.ngood :
+            target  = None
+            perfect = False
+            for v in ng :
+                if not v.isAssigned() :
+                    if not target is None :
+                        perfect = False
+                        break
+                    else :
+                        perfect = True
+                        target = v
+                else :
+                    if v.min == 0 :
+                        perfect = False
+                        break
+            if perfect :
+                target.setMax(0)
+
+        return True
+    
+    def setEngine(self, engine) :
+        for lv in [item for row in self.lvars for item in row]:
+            lv.setEngine( engine )
+    
+    def addNoGood(self, vars) :
+        lv = []
+        for i,v in enumerate(vars) :
+            lv.append( self.lvars[i][v.val() - self.delta[i]] )
+
+        self.ngood.append(lv)

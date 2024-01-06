@@ -14,7 +14,7 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolverT.variables import *
+from PythonCPSolverL.variables import *
 
 #====================================================================
 

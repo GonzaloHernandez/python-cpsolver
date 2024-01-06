@@ -13,7 +13,7 @@
 #       variables.py
 #====================================================================
 
-from PythonCPSolver.variables import *
+from PythonCPSolverC.variables import *
 
 class AllDifferent :
     def __init__(self, vars) -> None:
