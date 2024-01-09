@@ -18,21 +18,12 @@ from PythonCPSolverL.engine import *
 
 x = IntVar(0,2,'x')
 y = IntVar(0,2,'y')
-
-# xs = IntVarArray( x.card(), 0,1, 'x')
-# ys = IntVarArray( y.card(), 0,1, 'y')
-
-# CL = []
-# for i,xi in enumerate(xs) :
-#     CL.append( Equation( xi == (x == i+x.min) ) )
-
-# for i,yi in enumerate(ys) :
-#     CL.append( Equation( yi == (y == i+y.min) ) )
+z = IntVar(0,2,'z')
 
 e = Engine(
-    [x,y],
+    [x,y,z],
     [ 
-        # Lazzy( [x,y] ) 
+        # Equation( y < z)
     ]
 )
 

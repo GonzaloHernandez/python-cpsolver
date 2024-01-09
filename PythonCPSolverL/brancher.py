@@ -26,9 +26,6 @@ class Brancher :
         self.curv   = -1
     
     def branch(self) :
-        if self.curv == len(self.vars) :
-            self.curv = -1
-            return None
         for i,v in enumerate(self.vars) :
             if not v.isAssigned() :
                 self.curv = i

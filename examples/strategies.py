@@ -14,7 +14,7 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolverT.engine import *
+from PythonCPSolverL.engine import *
 
 nPlayers    = 5
 nStrategies = 5

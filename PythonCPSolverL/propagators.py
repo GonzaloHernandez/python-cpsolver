@@ -133,12 +133,12 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
-class Lazzy(Propagator) :
+class Lazy(Propagator) :
     def __init__(self,vars) -> None:
         self.vars   = vars  # Real variables
-        self.lvars  = []    # Lazzy variables
-        self.lcons  = []    # Lazzy constraint to link real variables
-        self.ngood  = []    # No good constraints 
+        self.lvars  = []    # Lazy variables
+        self.lcons  = []    # Lazy constraint to link real variables
+        self.ncons  = []    # New constraints 
         self.delta  = []
 
         for v in self.vars :
@@ -148,8 +148,6 @@ class Lazzy(Propagator) :
             self.lvars.append( lv )
             self.delta.append( v.min )
 
-        # self.addNoGood( [self.lvars[0][1], self.lvars[1][1]] )
-
     def __str__(self) -> str:
         return "lazzyvars"
 
@@ -157,7 +155,7 @@ class Lazzy(Propagator) :
         for c in self.lcons :
             if not c.prune() : return False
 
-        for ng in self.ngood :
+        for ng in self.ncons :
             target  = None
             perfect = False
             for v in ng :
@@ -176,7 +174,17 @@ class Lazzy(Propagator) :
                 target.setMax(0)
 
         return True
-    
+
+    def reduce(self) :
+        ng = self.ncons[len(self.ncons)-1]
+        current = ng[len(ng)-1].name[1]
+        if int(current) == len(self.lvars[len(ng)-1])-1 :
+            newng = ng[:len(ng)-1]
+            if newng == [] : return
+            self.ncons = self.ncons[:len(self.ncons)-int(current)-1]
+            self.ncons.append(newng)
+            self.reduce()
+
     def setEngine(self, engine) :
         for lv in [item for row in self.lvars for item in row]:
             lv.setEngine( engine )
@@ -186,4 +194,5 @@ class Lazzy(Propagator) :
         for i,v in enumerate(vars) :
             lv.append( self.lvars[i][v.val() - self.delta[i]] )
 
-        self.ngood.append(lv)
+        self.ncons.append(lv)
+        self.reduce()

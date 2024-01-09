@@ -33,7 +33,7 @@ class Engine :
 
         for v in self.vars : v.setEngine(self)
 
-        self.lazzy  = Lazzy(self.vars)
+        self.lazzy  = Lazy(self.vars)
         self.lazzy.setEngine(self)
         self.cons.append( self.lazzy )
 
