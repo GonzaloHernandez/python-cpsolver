@@ -4,7 +4,7 @@
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
-# 2023
+# 2024
 #
 # Modules:
 #   examples
@@ -22,9 +22,7 @@ z = IntVar(0,2,'z')
 
 e = Engine(
     [x,y,z],
-    [ 
-        # Equation( y < z)
-    ]
+    []
 )
 
 S = e.search(0)

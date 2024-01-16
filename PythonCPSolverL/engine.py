@@ -4,7 +4,7 @@
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
-# 2023
+# 2024
 #
 # Modules:
 #   PythonCPSolver
@@ -12,11 +12,13 @@
 #       propagators.py
 #       variables.py
 #       brancher.py
+#       conflictdriven.py
 #====================================================================
 
-from PythonCPSolverL.propagators import *
-from PythonCPSolverL.brancher import *
 import copy
+
+from PythonCPSolverL.conflictdriven import *
+from PythonCPSolverL.brancher import *
 
 #====================================================================
 
@@ -33,9 +35,9 @@ class Engine :
 
         for v in self.vars : v.setEngine(self)
 
-        self.lazzy  = Lazy(self.vars)
-        self.lazzy.setEngine(self)
-        self.cons.append( self.lazzy )
+        self.cdcl  = ConflictDriven(self.vars, self)
+
+        self.cons.append( self.cdcl )
 
     #--------------------------------------------------------------
     def isOptimizing(self) :
@@ -58,7 +60,7 @@ class Engine :
     def propagate(self) :
         t1 = 0
         for v in self.vars : t1 += v.card()
-        for lv in self.lazzy.lvars : 
+        for lv in self.cdcl.bvars : 
             for v in lv : t1 += v.card()
 
         self.q = []
@@ -74,7 +76,7 @@ class Engine :
 
         t2 = 0
         for v in self.vars : t2 += v.card()
-        for lv in self.lazzy.lvars : 
+        for lv in self.cdcl.bvars : 
             for v in lv : t2 += v.card()
 
         if t2 < t1 :
@@ -133,7 +135,7 @@ class Engine :
     def makeDecision(self, dec) :
         if dec is None :
             if self.trail != [] :
-                self.lazzy.addNoGood(self.vars)
+                self.cdcl.createClause(self.vars,[False for i in self.vars])
                 var = self.undo()
                 if var is None : return False
                 

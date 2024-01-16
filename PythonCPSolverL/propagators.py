@@ -12,24 +12,23 @@
 #       propagators.py
 #       variables.py
 #       brancher.py
+#       conflictdriven.py
 #====================================================================
 
 from PythonCPSolverL.variables import *
 
-
-class Propagator :
-    def setEngine(self, engine) :
-        pass
-
 #====================================================================
 
-class AllDifferent(Propagator) :
+class AllDifferent :
     def __init__(self, vars) -> None:
         self.vars = vars
 
     def __str__(self) -> str:
-        return str(self.vars)
-    
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return "alldifferent("+intVarArrayToStr(self.vars ,printview)+")"
+
     def prune(self) :
         for v1 in self.vars :
             if v1.isAssigned() :
@@ -43,7 +42,7 @@ class AllDifferent(Propagator) :
 
 #====================================================================
 
-class Linear(Propagator) :
+class Linear :
     def __init__(self, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.vars   = vars
@@ -64,7 +63,7 @@ class Linear(Propagator) :
 
 #====================================================================
 
-class LinearArgs(Propagator) :
+class LinearArgs :
     def __init__(self, args, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.args   = args
@@ -88,13 +87,16 @@ class LinearArgs(Propagator) :
 
 #====================================================================
 
-class Equation(Propagator) :
+class Equation :
     def __init__(self, exp) -> None:
         self.exp = exp
 
     def __str__(self) -> str:
-        return str(self.exp)
-    
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return self.exp.toStr(printview)
+
     def prune(self) :
         self.exp.evaluate()
         return self.exp.project(1,1)
@@ -133,66 +135,54 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
-class Lazy(Propagator) :
-    def __init__(self,vars) -> None:
-        self.vars   = vars  # Real variables
-        self.lvars  = []    # Lazy variables
-        self.lcons  = []    # Lazy constraint to link real variables
-        self.ncons  = []    # New constraints 
-        self.delta  = []
+class Clause :
+    def __init__(self, lits) -> None:
+        self.lits   = lits
+        pass
 
-        for v in self.vars :
-            lv = IntVarArray( v.card(), 0,1, '#' )
-            for i,vi in enumerate(lv) :
-                self.lcons.append( Equation(vi == (v == i+v.min)) )
-            self.lvars.append( lv )
-            self.delta.append( v.min )
-
+    #--------------------------------------------------------------
     def __str__(self) -> str:
-        return "lazzyvars"
+        return self.toStr()
 
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        text = "[ "
+        for l in self.lits : 
+            text += l.toStr(printview)
+            text += " | " if id(l) != id(self.lits[len(self.lits)-1]) else " "
+        text += "]"
+        return text 
+
+    #--------------------------------------------------------------
     def prune(self) :
-        for c in self.lcons :
-            if not c.prune() : return False
-
-        for ng in self.ncons :
-            target  = None
-            perfect = False
-            for v in ng :
-                if not v.isAssigned() :
-                    if not target is None :
-                        perfect = False
-                        break
-                    else :
-                        perfect = True
-                        target = v
+        lit  = None
+        flag = False
+        confict = True
+        for l in self.lits :
+            if not l.var.isAssigned() :
+                confict = False
+                if not lit is None :
+                    flag = False
+                    break
                 else :
-                    if v.min == 0 :
-                        perfect = False
-                        break
-            if perfect :
-                target.setMax(0)
+                    flag = True
+                    lit = l
+            else :
+                if l.alt is True and l.var.min == 1 :
+                    confict = False
+                    flag = False
+                    break
+                if l.alt is False and l.var.min == 0 :
+                    confict = False
+                    flag = False
+                    break
+
+        if confict is True :
+            return False
+        
+        if flag is True:
+            if lit.alt is True :
+                if not lit.setMin(1,self) : return False
+            else :
+                if not lit.setMax(0,self) : return False
 
         return True
-
-    def reduce(self) :
-        ng = self.ncons[len(self.ncons)-1]
-        current = ng[len(ng)-1].name[1]
-        if int(current) == len(self.lvars[len(ng)-1])-1 :
-            newng = ng[:len(ng)-1]
-            if newng == [] : return
-            self.ncons = self.ncons[:len(self.ncons)-int(current)-1]
-            self.ncons.append(newng)
-            self.reduce()
-
-    def setEngine(self, engine) :
-        for lv in [item for row in self.lvars for item in row]:
-            lv.setEngine( engine )
-    
-    def addNoGood(self, vars) :
-        lv = []
-        for i,v in enumerate(vars) :
-            lv.append( self.lvars[i][v.val() - self.delta[i]] )
-
-        self.ncons.append(lv)
-        self.reduce()

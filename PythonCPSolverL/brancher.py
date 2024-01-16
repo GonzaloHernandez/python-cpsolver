@@ -12,6 +12,7 @@
 #       propagators.py
 #       variables.py
 #       brancher.py
+#       conflictdriven.py
 #====================================================================
 
 from PythonCPSolverL.variables import *
