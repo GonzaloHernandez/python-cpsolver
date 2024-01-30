@@ -14,7 +14,7 @@ import os,sys, time
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolverT.engine import *
+from PythonCPSolver_Trail.engine import *
 
 x,y,z,w,t = IntVarArray(5, 1, 711)
 

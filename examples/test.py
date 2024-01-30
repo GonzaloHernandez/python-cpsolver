@@ -14,14 +14,13 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolverL.engine import *
+from PythonCPSolver_CDCL.engine import *
 
-x = IntVar(0,2,'x')
-y = IntVar(0,2,'y')
-z = IntVar(0,2,'z')
+x = IntVar(0,1,'x')
+y = IntVar(0,1,'y')
 
 e = Engine(
-    [x,y,z],
+    [x,y],
     []
 )
 

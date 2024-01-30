@@ -15,7 +15,7 @@
 
 import copy
 
-from PythonCPSolverC.propagators import *
+from PythonCPSolver_CopySpace.propagators import *
 
 class Globals :
     def __init__(self, optv, vars, func, sols, tops) -> None:

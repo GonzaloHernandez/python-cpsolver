@@ -1,10 +1,10 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.4 (Conflict-Driven Clause Learning)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
-# 2023
+# 2024
 #
 # Modules:
 #   PythonCPSolver
@@ -12,11 +12,12 @@
 #       propagators.py
 #       variables.py
 #       brancher.py
+#       conflictdriven.py
 #====================================================================
 
 import math
 
-from PythonCPSolverT.brancher import *
+from PythonCPSolver_CDCL.brancher import *
 
 #====================================================================
 
@@ -69,6 +70,9 @@ class Operable :
         if isinstance(exp, int) : exp = IntVar(exp,exp)
         return Expression(self,"|",exp)
 
+    def __invert__(self) :
+        return Literal(0, 1, False, self.name)
+
 #====================================================================
 
 class IntVar (Operable) :
@@ -89,14 +93,8 @@ class IntVar (Operable) :
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
-        if self.isFailed() :
-            return f"{self.name}()"
-        elif self.isAssigned() :
-            return f"{self.name}{{{str(self.min)}}}"
-        else :
-            return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"
-
-    #--------------------------------------------------------------
+        return self.toStr()
+    
     def toStr(self, view=PRINT_MIX) :
         if view == self.PRINT_VALUE :
             if self.isFailed() :
@@ -150,6 +148,9 @@ class IntVar (Operable) :
     def isFailed(self) :
         return (self.min>self.max)
     
+    def getVal(self) :
+        return self.min
+    
     def card(self) :
         return self.max - self.min + 1
     
@@ -172,6 +173,55 @@ class IntVar (Operable) :
 
 #====================================================================
 
+class Literal :
+    def __init__(self, var, alt=True) -> None:
+        self.var    = var
+        self.alt    = alt
+        self.razon  = None
+        pass
+
+    #--------------------------------------------------------------
+    def __str__(self) -> str:
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        text = "~" if self.alt is False else  ""
+        text += self.var.toStr(printview)
+        return text
+
+    #--------------------------------------------------------------
+    def setMin(self, nmin, razon) :
+        if nmin  > self.var.max : return False
+        if self.var.min == nmin : return True
+
+        step = [self.var, Brancher.LEFT, self.var.min, False]
+        self.var.engine.trail.append( step )
+        self.var.min    = nmin
+        self.razon      = razon
+        return True
+
+    def setMax(self, nmax, razon) :
+        if nmax  < self.var.min : return False
+        if self.var.max == nmax : return True
+
+        step = [self.var, Brancher.RIGHT, self.var.max, False]
+        self.var.engine.trail.append( step )
+        self.var.max    = nmax
+        self.razon      = razon
+        return True
+
+#====================================================================
+
+def literalArray(n, prefix='_') -> list:
+    vs = []
+    for i in range(n) :
+        label       = prefix+str(i) if prefix != '_' else '_'
+        variable    = IntVar(0,1,label)
+        vs.append(Literal(variable))
+    return vs
+
+#====================================================================
+
 class Expression (Operable) :
     def __init__(self, exp1, oper, exp2) -> None:
         self.exp1 = exp1
@@ -180,10 +230,17 @@ class Expression (Operable) :
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        # if self.oper is None :
+        #     return str(self.exp1)
+        # else :
+        #     return "("+str(self.exp1) + self.oper + str(self.exp2)+")"
         if self.oper is None :
-            return str(self.exp1)
+            return self.exp1.toStr(printview)
         else :
-            return "("+str(self.exp1) + self.oper + str(self.exp2)+")"
+            return "("+self.exp1.toStr(printview) + self.oper + self.exp2.toStr(printview)+")"
 
     #--------------------------------------------------------------
     def evaluate(self) :

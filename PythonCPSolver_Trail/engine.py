@@ -14,8 +14,8 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolverT.propagators import *
-from PythonCPSolverT.brancher import *
+from PythonCPSolver_Trail.propagators import *
+from PythonCPSolver_Trail.brancher import *
 import copy
 
 #====================================================================

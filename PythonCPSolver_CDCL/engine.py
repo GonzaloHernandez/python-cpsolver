@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.4 (Conflict-Driven Clause Learning)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -17,8 +17,8 @@
 
 import copy
 
-from PythonCPSolverL.conflictdriven import *
-from PythonCPSolverL.brancher import *
+from PythonCPSolver_CDCL.conflictdriven import *
+from PythonCPSolver_CDCL.brancher import *
 
 #====================================================================
 
@@ -174,3 +174,11 @@ def maximize(exp) -> Expression:
     return [2,exp]
 
 #====================================================================
+
+def stepToStr(step) -> str:
+    text  = '{'
+    text += step[0].name
+    text += ' L ' if step[1]==1 else ' R '
+    text += str(step[2])
+    text += '}'
+    return text

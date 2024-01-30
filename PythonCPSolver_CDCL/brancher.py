@@ -1,10 +1,10 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.4 (Conflict-Driven Clause Learning)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
-# 2023
+# 2024
 #
 # Modules:
 #   PythonCPSolver
@@ -15,7 +15,7 @@
 #       conflictdriven.py
 #====================================================================
 
-from PythonCPSolverL.variables import *
+from PythonCPSolver_CDCL.variables import *
 
 #====================================================================
 

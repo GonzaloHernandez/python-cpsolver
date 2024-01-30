@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.4 (Conflict-Driven Clause Learning)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -11,11 +11,11 @@
 #       engine.py
 #       propagators.py
 #       variables.py
-#       brancer.py
+#       brancher.py
 #       conflictdriven.py
 #====================================================================
 
-from PythonCPSolverL.propagators import *
+from PythonCPSolver_CDCL.propagators import *
 
 #====================================================================
 
@@ -40,7 +40,7 @@ class ConflictDriven :
         pass
 
     def __str__(self) -> str:
-        return "Confict driven"
+        return "Confict driven" 
 
     def prune(self) :
         for c in self.claus :
