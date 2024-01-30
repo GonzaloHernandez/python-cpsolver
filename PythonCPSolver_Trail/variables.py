@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.3 (Using a trail to undo a search)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -92,12 +92,7 @@ class IntVar (Operable) :
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
-        if self.isFailed() :
-            return f"{self.name}()"
-        elif self.isAssigned() :
-            return f"{self.name}{{{str(self.min)}}}"
-        else :
-            return f"{self.name}{{{str(self.min)}..{str(self.max)}}}"
+        return self.toStr()
 
     #--------------------------------------------------------------
     def toStr(self, view=PRINT_MIX) :
@@ -153,6 +148,9 @@ class IntVar (Operable) :
     def isFailed(self) :
         return (self.min>self.max)
     
+    def getVal(self) :
+        return self.min
+    
     def card(self) :
         return self.max - self.min + 1
     
@@ -183,10 +181,13 @@ class Expression (Operable) :
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         if self.oper is None :
-            return str(self.exp1)
+            return self.exp1.toStr(printview)
         else :
-            return "("+str(self.exp1) + self.oper + str(self.exp2)+")"
+            return "("+self.exp1.toStr(printview) + self.oper + self.exp2.toStr(printview)+")"
 
     #--------------------------------------------------------------
     def evaluate(self) :

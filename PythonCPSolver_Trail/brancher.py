@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.3 (Using a trail to undo a search)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com

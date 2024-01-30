@@ -19,8 +19,8 @@ from PythonCPSolver_Trail.engine import *
 nPlayers    = 5
 nStrategies = 5
 
-V = IntVarArray(nPlayers,0,nStrategies-1)
-U = IntVarArray(nPlayers,1,nStrategies)
+V = IntVarArray(nPlayers,0,nStrategies-1,'v')
+U = IntVarArray(nPlayers,1,nStrategies,'u')
 
 C = []
 
@@ -34,4 +34,4 @@ e = Engine(V+U, C)
 S = e.search(20)
 
 for s in S :
-    print(intVarArrayToStr(s))
+    print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

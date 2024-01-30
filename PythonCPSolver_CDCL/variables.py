@@ -233,10 +233,6 @@ class Expression (Operable) :
         return self.toStr()
 
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        # if self.oper is None :
-        #     return str(self.exp1)
-        # else :
-        #     return "("+str(self.exp1) + self.oper + str(self.exp2)+")"
         if self.oper is None :
             return self.exp1.toStr(printview)
         else :

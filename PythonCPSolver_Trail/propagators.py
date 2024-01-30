@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.3 (Using a trail to undo a search)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -23,8 +23,11 @@ class AllDifferent :
         self.vars = vars
 
     def __str__(self) -> str:
-        return str(self.vars)
-    
+        return self.toStr()
+
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return "alldifferent("+intVarArrayToStr(self.vars ,printview)+")"
+
     def prune(self) :
         for v1 in self.vars :
             if v1.isAssigned() :
@@ -82,6 +85,7 @@ class LinearArgs :
         return True
 
 #====================================================================
+    
 class Equation :
     def __init__(self, exp) -> None:
         self.exp = exp
@@ -125,4 +129,8 @@ def sum(vars) -> Expression:
         exp = exp + vars[i]
     return exp
 
-#--------------------------------------------------------------
+#====================================================================
+
+class Preferences :
+    def __init__(self,vars,utils,pref) -> None:
+        pass

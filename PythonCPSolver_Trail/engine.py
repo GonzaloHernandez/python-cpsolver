@@ -1,6 +1,6 @@
 #====================================================================
 # Simple Constraint (Satisfaction/Optimization) Programming Solver 
-# Current version 1.3
+# Current version 1.3 (Using a trail to undo a search)
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -67,7 +67,7 @@ class Engine :
             if not c.prune() : return False
 
         t2 = 0
-        for v in self.vars : t2 += v.max - v.min + 1
+        for v in self.vars : t2 += v.card()
 
         if t2 < t1 :
             return self.propagate()
@@ -166,3 +166,11 @@ def maximize(exp) -> Expression:
     return [2,exp]
 
 #====================================================================
+
+def stepToStr(step) -> str:
+    text  = '{'
+    text += step[0].name
+    text += ' L ' if step[1]==1 else ' R '
+    text += str(step[2])
+    text += '}'
+    return text
