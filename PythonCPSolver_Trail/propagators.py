@@ -18,12 +18,22 @@ from PythonCPSolver_Trail.variables import *
 
 #====================================================================
 
-class AllDifferent :
-    def __init__(self, vars) -> None:
-        self.vars = vars
+class Propagator :
+    def __init__(self) -> None:
+        pass
 
     def __str__(self) -> str:
         return self.toStr()
+
+    def setEngine(self, engine) :
+        pass
+
+#====================================================================
+
+class AllDifferent(Propagator) :
+    def __init__(self, vars) -> None:
+        Propagator.__init__(self, )
+        self.vars = vars
 
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         return "alldifferent("+intVarArrayToStr(self.vars ,printview)+")"
@@ -41,13 +51,13 @@ class AllDifferent :
 
 #====================================================================
 
-class Linear :
+class Linear(Propagator) :
     def __init__(self, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.vars   = vars
         self.vart   = vart
 
-    def __str__(self) -> str:
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         return str(self.vars)+" = "+str(self.valt)
     
     def prune(self) :
@@ -62,14 +72,14 @@ class Linear :
 
 #====================================================================
 
-class LinearArgs :
+class LinearArgs(Propagator) :
     def __init__(self, args, vars, vart) -> None:
         if isinstance(vart, int) : vart = IntVar(vart,vart)
         self.args   = args
         self.vars   = vars
         self.vart   = vart
 
-    def __str__(self) -> str:
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         return str(self.vars)+" = "+str(self.valt)
     
     def prune(self) :
@@ -86,12 +96,12 @@ class LinearArgs :
 
 #====================================================================
     
-class Equation :
+class Equation(Propagator) :
     def __init__(self, exp) -> None:
         self.exp = exp
 
-    def __str__(self) -> str:
-        return str(self.exp)
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return self.exp.toStr(printview)
     
     def prune(self) :
         self.exp.evaluate()
@@ -131,28 +141,36 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
-class NashConstraint :
-    def __init__(self,pi,vars,func) -> None:
-        self.pi     = pi
+class NashConstraint(Propagator) :
+    def __init__(self, vars,pi,func) -> None:
         self.vars   = vars
+        self.pi     = pi
         self.func   = func
         self.util   = func[1]
+        self.optc   = None
 
         if self.func[0] ==  MAXIMIZE:
             self.optc = Equation(
-                self.func[1] >= IntVar( self.util.getVal(), IntVar.INFINITE, engine=self) )
+                self.func[1] >= IntVar( self.util.getVal(), IntVar.INFINITE) )
         else :      # if is MINIMIZE
             self.optc = Equation(
-                self.func[1] <= IntVar(-IntVar.INFINITE, self.util.getVal(), engine=self) )
+                self.func[1] <= IntVar(-IntVar.INFINITE, self.util.getVal()) )
 
-        self.optc   = None
-
-    def __str__(self) -> str:
-        return 'Preferences propagator'
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'NashConstraint propagator'
     
-    def prune(self) :
-        if self.util.isAssigned() :
-            if self.func[0] ==  MAXIMIZE and self.optc.exp.exp2:
+    def setEngine(self, engine) :
+        optv = self.optc.exp.exp2
+        optv.setEngine( engine )
 
-        self.exp.evaluate()
-        return self.exp.project(1,1)
+    def prune(self) :
+        optv = self.optc.exp.exp2
+
+        if self.util.isAssigned() :
+            if self.func[0] ==  MAXIMIZE and self.util.getVal() > optv.min :
+                optv.setge( self.util.getVal() )
+                
+            elif self.func[0] ==  MINIMIZE and self.util.getVal() < optv.min :
+                optv.setle( self.util.getVal() )
+
+        return self.optc.prune()

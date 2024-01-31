@@ -26,7 +26,7 @@ C = []
 
 for i in range(nPlayers) :
     C.append( Equation( U[i] == count(V,V[i]) ) )
-    C.append( NashConstraint( i, V, maximize(U[i]) ) )
+    C.append( NashConstraint( V, i, maximize(U[i]) ) )
 
 e = Engine(V+U, C)
 

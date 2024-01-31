@@ -32,16 +32,17 @@ class Engine :
         self.bran   = Brancher(self.vars)
 
         for v in self.vars : v.setEngine(self)
+        for c in self.cons : c.setEngine(self)
 
     #--------------------------------------------------------------
     def isOptimizing(self) :
-        return True if self.func[0] > 0 else False
+        return True if self.func[0]  > NONEOPTI else False
 
     def isMinimizing(self) :
-        return True if self.func[0] == 1 else False
+        return True if self.func[0] == MINIMIZE else False
     
     def isMaximizing(self) :
-        return True if self.func[0] == 2 else False
+        return True if self.func[0] == MAXIMIZE else False
 
     def evaluateFun(self) :
         localfun = self.func[1].match(self.vars, self.vars)

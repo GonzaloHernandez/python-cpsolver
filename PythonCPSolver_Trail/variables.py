@@ -391,6 +391,7 @@ class Expression (Operable) :
 
 #====================================================================
 
+NONEOPTI = 0
 MINIMIZE = 1
 MAXIMIZE = 2
 
