@@ -391,6 +391,19 @@ class Expression (Operable) :
 
 #====================================================================
 
+MINIMIZE = 1
+MAXIMIZE = 2
+
+def minimize(exp) -> Expression:
+    return [MINIMIZE,exp]
+
+#--------------------------------------------------------------
+
+def maximize(exp) -> Expression:
+    return [MAXIMIZE,exp]
+
+#====================================================================
+
 def IntVarArray(n,min,max,prefix='_') -> list:
     vs = []
     for i in range(n) :

@@ -131,6 +131,28 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
-class Preferences :
-    def __init__(self,vars,utils,pref) -> None:
-        pass
+class NashConstraint :
+    def __init__(self,pi,vars,func) -> None:
+        self.pi     = pi
+        self.vars   = vars
+        self.func   = func
+        self.util   = func[1]
+
+        if self.func[0] ==  MAXIMIZE:
+            self.optc = Equation(
+                self.func[1] >= IntVar( self.util.getVal(), IntVar.INFINITE, engine=self) )
+        else :      # if is MINIMIZE
+            self.optc = Equation(
+                self.func[1] <= IntVar(-IntVar.INFINITE, self.util.getVal(), engine=self) )
+
+        self.optc   = None
+
+    def __str__(self) -> str:
+        return 'Preferences propagator'
+    
+    def prune(self) :
+        if self.util.isAssigned() :
+            if self.func[0] ==  MAXIMIZE and self.optc.exp.exp2:
+
+        self.exp.evaluate()
+        return self.exp.project(1,1)

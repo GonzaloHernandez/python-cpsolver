@@ -16,8 +16,8 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 
-nPlayers    = 5
-nStrategies = 5
+nPlayers    = 3
+nStrategies = 3
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
@@ -25,13 +25,12 @@ U = IntVarArray(nPlayers,1,nStrategies,'u')
 C = []
 
 for i in range(nPlayers) :
-    C.append(
-        Equation( U[i] == count(V,V[i]) )
-    )
+    C.append( Equation( U[i] == count(V,V[i]) ) )
+    C.append( NashConstraint( i, V, maximize(U[i]) ) )
 
 e = Engine(V+U, C)
 
-S = e.search(20)
+S = e.search(0)
 
 for s in S :
     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
