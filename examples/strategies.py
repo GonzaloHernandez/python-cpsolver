@@ -15,6 +15,7 @@ os.system("clear")
 
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
+from PythonCPSolver_Trail.propagators import *
 
 nPlayers    = 3
 nStrategies = 3
@@ -22,13 +23,14 @@ nStrategies = 3
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
 
+G = []
 C = []
 
 for i in range(nPlayers) :
-    C.append( Equation( U[i] == count(V,V[i]) ) )
+    G.append( Equation( U[i] == count(V,V[i]) ) )
     C.append( NashConstraint( V, i, maximize(U[i]) ) )
 
-e = Engine(V+U, C)
+e = Engine(V+U, G+C)
 
 S = e.search(0)
 

@@ -16,7 +16,7 @@
 
 import math
 
-from PythonCPSolver_Trail.brancher import *
+from PythonCPSolver_Trail.brancher import Brancher
 
 #====================================================================
 
@@ -80,7 +80,7 @@ class IntVar (Operable) :
     PRINT_NAME, PRINT_VALUE, PRINT_MIX  = 1,2,3
 
     #--------------------------------------------------------------
-    def __init__(self, min=-INFINITE, max=INFINITE, name='_', engine=None) -> None:
+    def __init__(self, min=-INFINITE, max=INFINITE, name="_", engine=None) -> None:
         self.min    = min
         self.max    = max
         self.name   = name
@@ -187,7 +187,11 @@ class Expression (Operable) :
         if self.oper is None :
             return self.exp1.toStr(printview)
         else :
-            return "("+self.exp1.toStr(printview) + self.oper + self.exp2.toStr(printview)+")"
+            text  = self.exp1.toStr(printview) 
+            text += self.oper 
+            text += self.exp2.toStr(printview)
+
+            return "(" + text + ")"
 
     #--------------------------------------------------------------
     def evaluate(self) :
@@ -408,15 +412,15 @@ def maximize(exp) -> Expression:
 def IntVarArray(n,min,max,prefix='_') -> list:
     vs = []
     for i in range(n) :
-        name = prefix+str(i) if prefix != '_' else '_'
+        name = prefix+str(i) if prefix != "_" else "_"
         vs.append(IntVar(min,max,name))
     return vs
 
 #--------------------------------------------------------------
 
 def intVarArrayToStr(vars, printview=IntVar.PRINT_MIX) -> str:
-    text = "[ "
+    text = ""
     for v in vars : 
         text += v.toStr(printview) + " "
-    text += "]"
-    return text
+
+    return "[" + text + "]"

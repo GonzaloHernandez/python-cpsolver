@@ -14,9 +14,9 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolver_Trail.propagators import *
-from PythonCPSolver_Trail.brancher import *
 import copy
+
+from PythonCPSolver_Trail.propagators import *
 
 #====================================================================
 
@@ -159,9 +159,8 @@ class Engine :
 #====================================================================
 
 def stepToStr(step) -> str:
-    text  = '{'
-    text += step[0].name
+    text  = step[0].name
     text += ' L ' if step[1]==1 else ' R '
     text += str(step[2])
-    text += '}'
-    return text
+
+    return "{" + text + "}"

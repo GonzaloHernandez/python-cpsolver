@@ -141,6 +141,8 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
+import importlib
+
 class NashConstraint(Propagator) :
     def __init__(self, vars,pi,func) -> None:
         self.vars   = vars
@@ -174,3 +176,20 @@ class NashConstraint(Propagator) :
                 optv.setle( self.util.getVal() )
 
         return self.optc.prune()
+
+        # opostifunc  = MINIMIZE if self.func[0] == MAXIMIZE else MAXIMIZE
+        # newfunc     = [opostifunc,self.func[1]]
+
+        # mod = importlib.import_module('PythonCPSolver_Trail.Engine')
+        
+        # e = mod.Engine(
+        #     self.vars,
+        #     [
+        #         Equation( self.util == count(self.vars,self.vars[self.pi]) )
+        #     ],
+        #     newfunc
+        # )
+
+        # s = e.search()
+
+        pass
