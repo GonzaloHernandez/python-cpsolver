@@ -36,7 +36,7 @@ class AllDifferent(Propagator) :
         self.vars = vars
 
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return "alldifferent("+intVarArrayToStr(self.vars ,printview)+")"
+        return 'alldifferent('+intVarArrayToStr(self.vars ,printview)+')'
 
     def prune(self) :
         for v1 in self.vars :
@@ -58,7 +58,7 @@ class Linear(Propagator) :
         self.vart   = vart
 
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return str(self.vars)+" = "+str(self.valt)
+        return str(self.vars)+' = '+str(self.valt)
     
     def prune(self) :
         for v1 in self.vars :
@@ -80,7 +80,7 @@ class LinearArgs(Propagator) :
         self.vart   = vart
 
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return str(self.vars)+" = "+str(self.valt)
+        return str(self.vars)+' = '+str(self.valt)
     
     def prune(self) :
         for i1,v1 in enumerate(self.vars) :
@@ -141,55 +141,61 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
-import importlib
+import importlib, copy
+
+engine = importlib.import_module('PythonCPSolver_Trail.engine')
 
 class NashConstraint(Propagator) :
-    def __init__(self, vars,pi,func) -> None:
+    def __init__(self, vars,pi,goal,func) -> None:
         self.vars   = vars
+        self.oriv   = vars[pi]
         self.pi     = pi
+        self.goal   = goal
         self.func   = func
-        self.util   = func[1]
+        self.util   = self.func[1]
         self.optc   = None
 
         if self.func[0] ==  MAXIMIZE:
             self.optc = Equation(
-                self.func[1] >= IntVar( self.util.getVal(), IntVar.INFINITE) )
+                self.util >= IntVar( self.util.getVal(), IntVar.INFINITE) )
         else :      # if is MINIMIZE
             self.optc = Equation(
-                self.func[1] <= IntVar(-IntVar.INFINITE, self.util.getVal()) )
+                self.util <= IntVar(-IntVar.INFINITE, self.util.getVal()) )
 
+    #--------------------------------------------------------------
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         return 'NashConstraint propagator'
     
+    #--------------------------------------------------------------
     def setEngine(self, engine) :
         optv = self.optc.exp.exp2
         optv.setEngine( engine )
 
+    #--------------------------------------------------------------
     def prune(self) :
-        optv = self.optc.exp.exp2
+        newvars,newgoal,newutil,newfunc = copy.deepcopy([self.vars, self.goal, self.util, self.func])
 
-        if self.util.isAssigned() :
+        newfunc[0]  = MINIMIZE if newfunc[0] == MAXIMIZE else MAXIMIZE
+
+        optv        = self.optc.exp.exp2
+
+        newvars[self.pi].min = self.oriv.min
+        newvars[self.pi].max = self.oriv.max
+
+        e = engine.Engine(
+            [newutil] + newvars ,
+            newgoal,
+            newfunc
+        )
+
+        s = e.search()
+
+        if s != [] :
+            v = s[0][0]
             if self.func[0] ==  MAXIMIZE and self.util.getVal() > optv.min :
-                optv.setge( self.util.getVal() )
+                optv.setge( v.getVal() )
                 
             elif self.func[0] ==  MINIMIZE and self.util.getVal() < optv.min :
-                optv.setle( self.util.getVal() )
+                optv.setle( v.getVal() )
 
         return self.optc.prune()
-
-        # opostifunc  = MINIMIZE if self.func[0] == MAXIMIZE else MAXIMIZE
-        # newfunc     = [opostifunc,self.func[1]]
-
-        # mod = importlib.import_module('PythonCPSolver_Trail.Engine')
-        
-        # e = mod.Engine(
-        #     self.vars,
-        #     [
-        #         Equation( self.util == count(self.vars,self.vars[self.pi]) )
-        #     ],
-        #     newfunc
-        # )
-
-        # s = e.search()
-
-        pass

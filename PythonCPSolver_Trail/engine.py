@@ -163,4 +163,4 @@ def stepToStr(step) -> str:
     text += ' L ' if step[1]==1 else ' R '
     text += str(step[2])
 
-    return "{" + text + "}"
+    return '{' + text + '}'
