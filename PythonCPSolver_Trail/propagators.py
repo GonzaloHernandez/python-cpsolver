@@ -157,10 +157,10 @@ class NashConstraint(Propagator) :
 
         if self.func[0] ==  MAXIMIZE:
             self.optc = Equation(
-                self.util >= IntVar( self.util.getVal(), IntVar.INFINITE) )
+                self.util >= IntVar( self.util.min, IntVar.INFINITE) )
         else :      # if is MINIMIZE
             self.optc = Equation(
-                self.util <= IntVar(-IntVar.INFINITE, self.util.getVal()) )
+                self.util <= IntVar(-IntVar.INFINITE, self.util.max) )
 
     #--------------------------------------------------------------
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
@@ -199,3 +199,4 @@ class NashConstraint(Propagator) :
                 optv.setle( v.getVal() )
 
         return self.optc.prune()
+        # return True

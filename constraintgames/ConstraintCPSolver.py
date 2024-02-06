@@ -53,9 +53,8 @@ class EngineGame(Engine) :
                     for v in self.vars :
                         s.append( IntVar(v.min, v.max, v.name) )
                     # self.sols.append( s )
-                    print(intVarArrayToStr(s))
-
-                    # self.checkNash(s, self.n-1)
+                    t = intVarArrayToIntArray(s)
+                    self.checkNash(t, self.n-1)
 
                     # if len(self.sols)==tops : 
                     #     break
@@ -95,14 +94,10 @@ class EngineGame(Engine) :
                     S_ = Engine(self.V + self.U , self.C + C ).search(tops=0)
 
                     for s in S_ :
-                        
-                        dt = []
-                        for j in range(self.n) :
-                            dt.append(s[j].min)
-
+                        dt = intVarArrayToIntArray(s,self.n)
                         d.append(dt)
 
-                # self.insert_table(i,d)
+                self.insert_table(i,d)
                 # self.cnt[i] -= 1
             if t in d :
                 self.checkNash(t,i-1)

@@ -424,3 +424,13 @@ def intVarArrayToStr(vars, printview=IntVar.PRINT_MIX) -> str:
         text += v.toStr(printview) + ' '
 
     return '[' + text + ']'
+
+#--------------------------------------------------------------
+
+def intVarArrayToIntArray(vars, len=0) -> list:
+    intArray = []
+    for i,v in enumerate(vars) : 
+        if len>0 and i == len : break
+        intArray.append( v.getVal() )
+
+    return intArray

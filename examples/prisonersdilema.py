@@ -35,7 +35,7 @@ ny = NashConstraint( [x,y], 1, gy, minimize(uy) )
 
 e = Engine( 
     [x,y, ux,uy], 
-    gx + gy # + [nx,ny] 
+    gx + gy + [nx,ny] 
 )
 
 S = e.search(0)
