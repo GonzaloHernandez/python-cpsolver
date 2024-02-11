@@ -20,22 +20,18 @@ from PythonCPSolver_Trail.engine import *
 x = IntVar(0,1,'x')
 y = IntVar(0,1,'y')
 
-ux  = IntVar(0,3,'ux')
-uy  = IntVar(0,3,'uy')
+ux = IntVar(0,3,'ux')
+uy = IntVar(0,3,'uy')
 
-gx = [ 
-    Equation( ux == ( (y*2)-x+1 ) )
-]
-gy = [ 
-    Equation( uy == ( (x*2)-y+1 ) )
-]
+gx = Equation( ux == ( (y*2)-x+1 ) )
+gy = Equation( uy == ( (x*2)-y+1 ) )
 
 nx = NashConstraint( [x,y], 0, gx, minimize(ux) )
 ny = NashConstraint( [x,y], 1, gy, minimize(uy) )
 
 e = Engine( 
-    [x,y, ux,uy], 
-    gx + gy + [nx,ny] 
+    [x,y] + [ux,uy], 
+    [gx,gy] + [nx,ny] 
 )
 
 S = e.search(0)

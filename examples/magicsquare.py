@@ -28,7 +28,7 @@ Vdia2 = []
 
 for r in range(n) :
     row = []
-    col = []
+    col = [] 
     for c in range(n) :
         row.append(V[r*n+c])
         col.append(V[c*n+r])
@@ -39,14 +39,18 @@ for r in range(n) :
 
 C = []
 
-C.append( AllDifferent(V) )
+
+C.append( Linear(Vdia1, t) )
+C.append( Linear(Vdia2, t) )
 
 for i in range(n) :
     C.append( Linear(Vrows[i], t) )
     C.append( Linear(Vcols[i], t) )
 
-C.append( Linear(Vdia1, t) )
-C.append( Linear(Vdia2, t) )
+# C.append( Equation( sum(Vdia1)==t ) )
+# C.append( Equation( sum(Vdia2)==t ) )
+
+C.append( AllDifferent(V) )
 
 C.append( Equation( t == (n*n*(n*n+1)//2)//n ) ) 
 

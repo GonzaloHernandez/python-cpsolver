@@ -16,19 +16,18 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-pw = IntVar(0,1,'pw')
-pc = IntVar(0,1,'pc')
-pl = IntVar(0,1,'pl')
+x   = IntVar(0,1,'x')
+y   = IntVar(0,1,'y')
+ux  = IntVar(0,3,'ux')
+uy  = IntVar(0,3,'uy')
 
-uw = IntVar(0,1,'uw')
-uc = IntVar(0,1,'uc')
-ul = IntVar(0,1,'ul')
+gx  = Equation( ux == ( (y*2)-x+1 ) )
+gy  = Equation( uy == ( (x*2)-y+1 ) )
 
-gw = Equation( uw == pw & pl)
-gc = Equation( uc == 0 )
-gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
+fx  = minimize(ux)
+fy  = minimize(uy)
 
-e = EngineGame([pw,pc,pl],[uw,uc,ul],[],[gw,gc,gl])
+e   = EngineGame([x,y],[ux,uy],[],[gx,gy],[fx,fy])
 
 S = e.search(0)
 

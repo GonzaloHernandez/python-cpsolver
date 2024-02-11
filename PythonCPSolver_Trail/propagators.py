@@ -184,7 +184,7 @@ class NashConstraint(Propagator) :
 
         e = engine.Engine(
             [newutil] + newvars ,
-            newgoal,
+            [newgoal],
             newfunc
         )
 

@@ -28,17 +28,19 @@ class EngineGame(Engine) :
         
     #--------------------------------------------------------------
     def search(self, tops=1) :
-        # i = 0
-        # self.BR[i]   = []
-        # self.cnt[i]  = 1
-        # for j in range(i+1,self.n) :
-        #     self.cnt[i] *= self.V[j].card()
+        i = 0
+        self.BR[i]   = []
+        self.cnt[i]  = 1
+        for j in range(i+1,self.n) :
+            self.cnt[i] *= self.V[j].card()
     
+        counter = 0
         while True :
-            # if self.cnt[i] <= 0 :
-            #     self.checkEndOfTable(i)
-            #     dec = None
-            #     if not self.makeDecision(dec) : break
+            if i < self.n :
+                if self.cnt[i] <= 0 :
+                    self.checkEndOfTable(i)
+                    dec = None
+                    if not self.makeDecision(dec) : break
 
             if self.propagate() : 
 
@@ -52,26 +54,27 @@ class EngineGame(Engine) :
                     s = []
                     for v in self.vars :
                         s.append( IntVar(v.min, v.max, v.name) )
-                    # self.sols.append( s )
+
                     t = intVarArrayToIntArray(s)
                     self.checkNash(t, self.n-1)
-
-                    # if len(self.sols)==tops : 
-                    #     break
                 
                 dec = self.bran.branch()
 
-                # i = dec[2] + 1
-                # if i < self.n :
-                #     self.BR[i]   = []
-                #     self.cnt[i]  = 1
-                #     for j in range(i+1,self.n) :
-                #         self.cnt[i] *= self.V[j].card()
+                if dec != None :
+                    i = dec[2]
+                    if i < self.n :
+                        self.BR[i]   = []
+                        self.cnt[i]  = 1
+                        for j in range(i+1,self.n) :
+                            self.cnt[i] *= self.V[j].card()
                 
             else :
                 dec = None
+            
+            counter += 1
 
             if not self.makeDecision(dec) : break
+        # print(counter)
         return self.Nash
 
     #--------------------------------------------------------------
@@ -98,7 +101,7 @@ class EngineGame(Engine) :
                         d.append(dt)
 
                 self.insert_table(i,d)
-                # self.cnt[i] -= 1
+                self.cnt[i] -= 1
             if t in d :
                 self.checkNash(t,i-1)
 
@@ -116,7 +119,8 @@ class EngineGame(Engine) :
             F = self.F[i]
 
         S = Engine( self.V + self.U , self.C + self.G + C, F ).search(tops=0)
-        # S = solveModel( self.glob.V + self.glob.U , self.glob.G + C , F, tops=0 )
+        
+        # Pendant to search more optimal solutions
 
         d = []
 
@@ -136,13 +140,13 @@ class EngineGame(Engine) :
 
     #--------------------------------------------------------------
     def search_table(self,t,i) :
-        # if len(self.BR[i]) <= 0 : return []
+        if len(self.BR[i]) <= 0 : return []
 
         br = []
 
-        # for b in range(len(self.BR[i])) :
-        #     if self.BR[i][b][1:i]+self.BR[i][b][i+1:self.n] == t[1:i]+t[i+1:self.n] :
-        #         br.append( self.BR[i][b] )
+        for b in range(len(self.BR[i])) :
+            if self.BR[i][b][0:i]+self.BR[i][b][i+1:self.n] == t[0:i]+t[i+1:self.n] :
+                br.append( self.BR[i][b] )
         return br
 
     #--------------------------------------------------------------

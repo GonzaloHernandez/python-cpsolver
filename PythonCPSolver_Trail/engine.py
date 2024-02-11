@@ -53,21 +53,16 @@ class Engine :
 
     #--------------------------------------------------------------
     def propagate(self) :
-        t1 = 0
+        t1 = t2 = 0
+
         for v in self.vars : t1 += v.card()
 
-        self.q = []
         for c in self.cons :
-            self.q.append(c)
-        
-        if not self.optc is None :
-            self.q.append(self.optc)
-
-        while self.q != [] :
-            c = self.q.pop(0)
             if not c.prune() : return False
 
-        t2 = 0
+        if self.optc != None :
+            if not self.optc.prune() : return False
+
         for v in self.vars : t2 += v.card()
 
         if t2 < t1 :
@@ -162,5 +157,5 @@ def stepToStr(step) -> str:
     text  = step[0].name
     text += ' L ' if step[1]==1 else ' R '
     text += str(step[2])
-
+    
     return '{' + text + '}'
