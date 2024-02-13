@@ -17,6 +17,7 @@
 import copy
 
 from PythonCPSolver_Trail.propagators import *
+from PythonCPSolver_Trail.brancher import *
 
 #====================================================================
 
@@ -45,8 +46,9 @@ class Engine :
         return True if self.func[0] == MAXIMIZE else False
 
     def evaluateFun(self) :
-        localfun = self.func[1].match(self.vars, self.vars)
-        return localfun.evaluate()[0]
+        # localfun = self.func[1].match(self.vars, self.vars)
+        # return localfun.evaluate()[0]
+        return self.func[1].evaluate()[LB]
     
     def getFun(self) :
         return self.optc
@@ -86,11 +88,11 @@ class Engine :
                         val = self.evaluateFun()
                         if self.sols == [] :
                             if self.isMaximizing() :
-                                self.optc = Equation(
-                                    self.func[1] > IntVar( val, IntVar.INFINITE, engine=self) )
+                                var = IntVar( val, IntVar.INFINITE, engine=self)
+                                self.optc = Equation( self.func[1] > var )
                             else :
-                                self.optc = Equation(
-                                    self.func[1] < IntVar(-IntVar.INFINITE, val, engine=self) )
+                                var = IntVar(-IntVar.INFINITE, val, engine=self)
+                                self.optc = Equation( self.func[1] < var )
                         else :
                             if self.isMaximizing() :
                                 self.optc.exp.exp2.setge( val )
@@ -123,7 +125,7 @@ class Engine :
             if self.trail != [] :
                 var = self.undo()
                 if var is None : return False
-                step = [var, Brancher.LEFT, var.min, False]
+                step = [var, LEFT, var.min, False]
                 self.trail.append( step )
                 var.min += 1
 
@@ -132,7 +134,7 @@ class Engine :
                 return False
             
         var,val = dec[0],dec[1]
-        step = [var, Brancher.RIGHT, var.max, True]
+        step = [var, RIGHT, var.max, True]
         self.trail.append( step )
         var.max = val
 
@@ -142,13 +144,11 @@ class Engine :
     def undo(self) :
         while self.trail != [] :
             [var,sid,val,key] = self.trail.pop()
-            match(sid) :
-                case Brancher.LEFT :
-                    var.min = val
-                case Brancher.RIGHT :
-                    var.max = val
-            if key : 
-                return var
+
+            if   sid == LEFT :  var.min = val
+            elif sid == RIGHT : var.max = val
+
+            if   key :          return var
         return None
 
 #====================================================================

@@ -16,7 +16,13 @@
 
 import math
 
-from PythonCPSolver_Trail.brancher import Brancher
+#====================================================================
+
+LEFT    = 1
+RIGHT   = 2
+
+LB     = 1
+UB     = 2
 
 #====================================================================
 
@@ -72,6 +78,12 @@ class Operable :
     def __invert__(self) :
         return Expression(self,'<',IntVar(1,1))
 
+    def __neg__(self) :
+        return Expression(IntVar(0,0),'-',self)
+
+    def __pos__(self) :
+        return self
+
 #====================================================================
 
 class IntVar (Operable) :
@@ -120,20 +132,22 @@ class IntVar (Operable) :
 
     #--------------------------------------------------------------
     def setMin(self, nmin) :
-        if nmin  > self.max : return
-        if self.min == nmin : return
+        if nmin  > self.max : return False
+        if self.min == nmin : return True
 
-        step = [self, Brancher.LEFT, self.min, False]
+        step = [self, LEFT, self.min, False]
         self.engine.trail.append( step )
         self.min = nmin
+        return True
 
     def setMax(self, nmax) :
-        if nmax  < self.min : return
-        if self.max == nmax : return
+        if nmax  < self.min : return False
+        if self.max == nmax : return True
 
-        step = [self, Brancher.RIGHT, self.max, False]
+        step = [self, RIGHT, self.max, False]
         self.engine.trail.append( step )
         self.max = nmax
+        return True
 
     #--------------------------------------------------------------
     def setge(self, val) :
@@ -160,8 +174,8 @@ class IntVar (Operable) :
     def project(self, nmin, nmax) :
         if nmin > nmax : return False
 
-        self.setMin( max(self.min, nmin) )
-        self.setMax( min(self.max, nmax) )
+        if not self.setMin( max(self.min, nmin) ) : return False
+        if not self.setMax( min(self.max, nmax) ) : return False
 
         return True
 

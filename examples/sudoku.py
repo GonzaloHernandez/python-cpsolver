@@ -53,7 +53,7 @@ C.append( Equation( V[ 4]==7) )
 C.append( Equation( V[10]==2) )
 C.append( Equation( V[75]==8) )
 
-F = minimize(V[0])
+F = maximize(V[0])
 
 t1 = time.time()
 S = Engine( V, C, F ).search()

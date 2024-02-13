@@ -21,6 +21,11 @@ from PythonCPSolver_CDCL.brancher import *
 
 #====================================================================
 
+LEFT    = 1
+RIGHT   = 2
+
+#====================================================================
+
 class Operable :
     def __add__(self, exp) :
         if isinstance(exp, int) : exp = IntVar(exp,exp)
@@ -123,7 +128,7 @@ class IntVar (Operable) :
         if nmin  > self.max : return
         if self.min == nmin : return
 
-        step = [self, Brancher.LEFT, self.min, False]
+        step = [self, LEFT, self.min, False]
         self.engine.trail.append( step )
         self.min = nmin
 
@@ -131,7 +136,7 @@ class IntVar (Operable) :
         if nmax  < self.min : return
         if self.max == nmax : return
 
-        step = [self, Brancher.RIGHT, self.max, False]
+        step = [self, RIGHT, self.max, False]
         self.engine.trail.append( step )
         self.max = nmax
 
@@ -194,7 +199,7 @@ class Literal :
         if nmin  > self.var.max : return False
         if self.var.min == nmin : return True
 
-        step = [self.var, Brancher.LEFT, self.var.min, False]
+        step = [self.var, LEFT, self.var.min, False]
         self.var.engine.trail.append( step )
         self.var.min    = nmin
         self.razon      = razon
@@ -204,7 +209,7 @@ class Literal :
         if nmax  < self.var.min : return False
         if self.var.max == nmax : return True
 
-        step = [self.var, Brancher.RIGHT, self.var.max, False]
+        step = [self.var, RIGHT, self.var.max, False]
         self.var.engine.trail.append( step )
         self.var.max    = nmax
         self.razon      = razon
@@ -212,7 +217,7 @@ class Literal :
 
 #====================================================================
 
-def literalArray(n, prefix='_') -> list:
+def LiteralArray(n, prefix='_') -> list:
     vs = []
     for i in range(n) :
         label       = prefix+str(i) if prefix != '_' else '_'

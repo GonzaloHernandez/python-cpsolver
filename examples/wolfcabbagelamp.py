@@ -33,8 +33,8 @@ nw = NashConstraint( [pw,pc,pl], 0, gw, maximize(uw) )
 nl = NashConstraint( [pw,pc,pl], 2, gl, maximize(ul) )
 
 e = Engine( 
-    [pw,pc,pl, uw,uc,ul], 
-    [gw,gc,gl, nw,nl] 
+    [pw,pc,pl] + [uw,uc,ul], 
+    [gw,gc,gl] + [nw,nl] 
 )
 
 S = e.search(0)

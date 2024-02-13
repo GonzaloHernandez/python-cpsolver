@@ -14,17 +14,19 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver_CDCL.engine import *
+from PythonCPSolver_Trail.engine import *
 
-x = IntVar(0,1,'x')
-y = IntVar(0,1,'y')
+x,y = IntVarArray(2,-3,3,'v')
+t = IntVar(2,5,'t')
 
 e = Engine(
-    [x,y],
-    []
+    [x,y] + [t],
+    [ Equation( x == -(t+1)) ]
 )
 
 S = e.search(0)
 
 for s in S :
     print( intVarArrayToStr(s) )
+
+print(len(S))

@@ -17,8 +17,8 @@ sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 from PythonCPSolver_Trail.propagators import *
 
-nPlayers    = 6
-nStrategies = 6
+nPlayers    = 4
+nStrategies = 4
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')

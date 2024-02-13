@@ -39,16 +39,12 @@ for r in range(n) :
 
 C = []
 
-
-C.append( Linear(Vdia1, t) )
-C.append( Linear(Vdia2, t) )
-
 for i in range(n) :
     C.append( Linear(Vrows[i], t) )
     C.append( Linear(Vcols[i], t) )
 
-# C.append( Equation( sum(Vdia1)==t ) )
-# C.append( Equation( sum(Vdia2)==t ) )
+C.append( Linear(Vdia1, t) )
+C.append( Linear(Vdia2, t) )
 
 C.append( AllDifferent(V) )
 
@@ -66,7 +62,7 @@ for r in range(n) :
         print(f"{v.toStr(IntVar.PRINT_VALUE):>2}", end=' ')
     print()
 
-print(f"Total solutions: {len(S)}\nTotal time: {t2-t1}   ")
+print(f"\nTotal solutions: {len(S)}\nTotal time: {t2-t1}   ")
 
 #====================================================================
 # Benchmarks:

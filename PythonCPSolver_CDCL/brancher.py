@@ -20,8 +20,6 @@ from PythonCPSolver_CDCL.variables import *
 #====================================================================
 
 class Brancher :
-    LEFT    = 1
-    RIGHT   = 2
     def __init__(self, vars) -> None:
         self.vars   = vars
         self.curv   = -1
