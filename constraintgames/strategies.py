@@ -16,13 +16,14 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-nPlayers    = 5
-nStrategies = 5
+nPlayers    = 3
+nStrategies = 3
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
 
 G = []
+C = []
 F = []
 for i in range(nPlayers) :
     G.append(
@@ -32,13 +33,15 @@ for i in range(nPlayers) :
         maximize( U[i] )
     )
 
-C = [
-    # Equation( V[i]>0 )
-]
+C.append(
+    PNE(V,U,G,[],F)
+)
 
-e = EngineGame(V,U,C,G,F)
+# e = EngineGame(V,U,C,G,F)
+e = Engine(V,C)
+
 
 S = e.search(0)
 
-for s in S :
-    print(s)
+# for s in S :
+#     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

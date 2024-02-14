@@ -246,3 +246,144 @@ class NashConstraint(Propagator) :
 
         return self.optc.prune()
         # return True
+
+
+#====================================================================
+
+class PNE(Propagator) :
+    def __init__(self, V,U,G,C=[],F=[]) -> None:
+        self.V,     \
+        self.U,     \
+        self.G,     \
+        self.C,     \
+        self.F      = copy.deepcopy( [V,U,G,C,F] )
+        
+        self.vars   = V
+        self.cons   = []
+
+        self.Nash   = []
+        self.BR     = []
+        self.cnt    = []
+        self.n      = len(V)
+
+        for i in range(self.n) : 
+            self.BR.append([])
+            self.cnt.append(1)
+            for m in range(self.n) :
+                if i !=m :
+                    self.cnt[i] *= V[m].card()
+        
+        pass
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'NashConstraint propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+
+        allAssigned = True
+        for v in self.vars :
+            if not v.isAssigned() :
+                allAssigned = False
+                break
+
+        if allAssigned :
+            s = []
+            for v in self.vars :
+                s.append( IntVar(v.min, v.max, v.name) )
+
+            t = intVarArrayToIntArray(s)
+            self.checkNash(t, self.n-1)
+
+        for c in self.cons :
+            if not c.prune() : return False
+
+        return True
+
+    #--------------------------------------------------------------
+    def checkNash(self,t,i) :
+        if i<0 :
+            if t not in self.Nash :
+                self.Nash.append(t)
+                print('PNE: ',end='')
+                print(t)
+        else :
+            d = self.search_table(t,i)
+            if d == [] :
+                d = self.findBestResponse(t,i)
+                
+                if d == [] :
+                    
+                    C = []
+                    for j in range(len(self.V)) :
+                        if j != i :
+                            C.append( Equation( self.V[j] == t[j] ) )
+                    
+                    S = engine.Engine(self.V + self.U , self.C + self.G + C ).search(ALL)
+
+                    for s in S :
+                        dt = intVarArrayToIntArray(s,self.n)
+                        d.append(dt)
+
+                self.insert_table(i,d)
+                if self.cnt[i] > 0 :
+                    self.cnt[i] -= 1
+                    if self.cnt[i] == 0 :
+                        self.cons.append( Equation( self.vars[i] <= t[i]) )
+            if t in d :
+                self.checkNash(t,i-1)
+
+    #--------------------------------------------------------------
+    def findBestResponse(self,t,i) :
+        C = []
+        for j in range(len(self.V)) :
+            if j != i :
+                C.append( Equation( self.V[j] == t[j] ) )
+
+        S = []
+        if self.F == [] :
+            C.append( Equation( self.U[i] == 1))
+            S = engine.Engine( self.V + self.U , self.C + self.G + C).search(ALL)
+        else :
+            F = self.F[i]
+            E = engine.Engine( self.V + self.U , self.C + self.G + C, F )
+            S = E.search()
+
+            if S != [] :
+                if F[TYPE]==MAXIMIZE :  val = E.optc.exp.exp2.min
+                else :                  val = E.optc.exp.exp2.max
+
+                C.append( Equation( self.U[i] == val ) )
+                S = engine.Engine( self.V + self.U , self.C + self.G + C).search(ALL)
+
+        d = []
+        for s in S :
+            dt = []
+            for j in range(self.n) :
+                dt.append(s[j].min)
+            d.append(dt)
+
+        return d
+
+    #--------------------------------------------------------------
+    def checkEndOfTable(self,i) :
+        for t in self.BR[i] :
+            self.checkNash(t,self.n-1)
+
+    #--------------------------------------------------------------
+    def search_table(self,t,i) :
+        if len(self.BR[i]) <= 0 : return []
+
+        br = []
+
+        for b in range(len(self.BR[i])) :
+            if self.BR[i][b][0:i]+self.BR[i][b][i+1:self.n] == t[0:i]+t[i+1:self.n] :
+                br.append( self.BR[i][b] )
+        return br
+
+    #--------------------------------------------------------------
+    def insert_table(self,i,d) :
+        for t in d :
+            if t not in self.BR[i] :
+                self.BR[i].append(t)

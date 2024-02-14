@@ -4,7 +4,7 @@
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
-# 2023
+# 2024
 #
 # Modules:
 #   examples
@@ -18,14 +18,21 @@ from constraintgames.ConstraintCPSolver import *
 
 pw,pc,pl = IntVarArray(3,0,1)
 uw,uc,ul = IntVarArray(3,0,1)
+de       = IntVar(0,1)
 
 gw = Equation( uw == pw & pl)
 gc = Equation( uc == 0 )
 gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
 
-e = EngineGame( [pw,pc,pl], [uw,uc,ul], [], [gw,gc,gl] )
+c = PNE( [pw,pc,pl], [uw,uc,ul], [gw,gc,gl] )
+
+e = Engine( [pw,pc,pl], [c] )
 
 S = e.search(0)
 
 for s in S :
+    print(intVarArrayToStr(s, IntVar.PRINT_VALUE))
+
+print('-------')
+for s in c.Nash :
     print(s)

@@ -37,19 +37,14 @@ class Engine :
 
     #--------------------------------------------------------------
     def isOptimizing(self) :
-        return True if self.func[0]  > NONEOPTI else False
+        return True if self.func[TYPE]  > NONEOPTI else False
 
     def isMinimizing(self) :
-        return True if self.func[0] == MINIMIZE else False
+        return True if self.func[TYPE] == MINIMIZE else False
     
     def isMaximizing(self) :
-        return True if self.func[0] == MAXIMIZE else False
+        return True if self.func[TYPE] == MAXIMIZE else False
 
-    def evaluateFun(self) :
-        # localfun = self.func[1].match(self.vars, self.vars)
-        # return localfun.evaluate()[0]
-        return self.func[1].evaluate()[LB]
-    
     def getFun(self) :
         return self.optc
 
@@ -57,15 +52,14 @@ class Engine :
     def propagate(self) :
         t1 = t2 = 0
 
-        for v in self.vars : t1 += v.card()
+        for v in self.vars : t1 += v.card() # Domain size precount
 
         for c in self.cons :
             if not c.prune() : return False
-
         if self.optc != None :
             if not self.optc.prune() : return False
 
-        for v in self.vars : t2 += v.card()
+        for v in self.vars : t2 += v.card() # Domain size postcount
 
         if t2 < t1 :
             return self.propagate()
@@ -85,19 +79,19 @@ class Engine :
                 
                 if allAssigned :
                     if self.isOptimizing() : 
-                        val = self.evaluateFun()
+                        result = self.func[EXPR].evaluate()
                         if self.sols == [] :
                             if self.isMaximizing() :
-                                var = IntVar( val, IntVar.INFINITE, engine=self)
+                                var = IntVar( result[MIN], IntVar.INFINITE, engine=self)
                                 self.optc = Equation( self.func[1] > var )
                             else :
-                                var = IntVar(-IntVar.INFINITE, val, engine=self)
+                                var = IntVar(-IntVar.INFINITE, result[MAX], engine=self)
                                 self.optc = Equation( self.func[1] < var )
                         else :
                             if self.isMaximizing() :
-                                self.optc.exp.exp2.setge( val )
+                                self.optc.exp.exp2.setge( result[MIN] )
                             else :
-                                self.optc.exp.exp2.setle( val )
+                                self.optc.exp.exp2.setle( result[MAX] )
 
                         s = []
                         for v in self.vars :

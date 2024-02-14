@@ -18,11 +18,19 @@ import math
 
 #====================================================================
 
-LEFT    = 1
-RIGHT   = 2
+ALL         = 0     # For general purposes
+LEFT        = 1     # For general purposes
+RIGHT       = 2     # For general purposes
 
-LB     = 1
-UB     = 2
+MIN         = 0     # Min value of a variable
+MAX         = 1     # Max value of a variable
+
+NONEOPTI    = 0     # Without optimization function
+MINIMIZE    = 1     # With minimizing function
+MAXIMIZE    = 2     # With maximizing function
+
+TYPE        = 0     # Optimization function type
+EXPR        = 1     # Optimization fucntion expression 
 
 #====================================================================
 
@@ -76,7 +84,7 @@ class Operable :
         return Expression(self,'|',exp)
 
     def __invert__(self) :
-        return Expression(self,'<',IntVar(1,1))
+       return Expression(self,'<',IntVar(1,1))
 
     def __neg__(self) :
         return Expression(IntVar(0,0),'-',self)
@@ -140,6 +148,7 @@ class IntVar (Operable) :
         self.min = nmin
         return True
 
+    #--------------------------------------------------------------
     def setMax(self, nmax) :
         if nmax  < self.min : return False
         if self.max == nmax : return True
@@ -171,6 +180,7 @@ class IntVar (Operable) :
     def evaluate(self) :
         return [self.min, self.max]
 
+    #--------------------------------------------------------------
     def project(self, nmin, nmax) :
         if nmin > nmax : return False
 
@@ -189,9 +199,9 @@ class IntVar (Operable) :
 
 class Expression (Operable) :
     def __init__(self, exp1, oper, exp2) -> None:
-        self.exp1 = exp1
-        self.oper = oper
-        self.exp2 = exp2
+        self.exp1 = exp1    # LEFT expression
+        self.oper = oper    # Operator expression
+        self.exp2 = exp2    # RIGHT expression
 
     #--------------------------------------------------------------
     def __str__(self) -> str:
@@ -409,16 +419,12 @@ class Expression (Operable) :
 
 #====================================================================
 
-NONEOPTI = 0
-MINIMIZE = 1
-MAXIMIZE = 2
-
-def minimize(exp) -> Expression:
+def minimize(exp) -> list:
     return [MINIMIZE,exp]
 
 #--------------------------------------------------------------
 
-def maximize(exp) -> Expression:
+def maximize(exp) -> list:
     return [MAXIMIZE,exp]
 
 #====================================================================
