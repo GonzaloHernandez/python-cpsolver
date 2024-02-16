@@ -14,28 +14,20 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from constraintgames.ConstraintCPSolver import *
+from PythonCPSolver_Trail.engine import *
 
-nPlayers    = 5
-nStrategies = 5
+n = 3
 
-V = IntVarArray(nPlayers,0,nStrategies-1,'v')
-U = IntVarArray(nPlayers,1,nStrategies,'u')
+V = IntVarArray(n,1,3)
+U = IntVarArray(n,0,1)
 
 G = []
-C = []
-F = []
-for i in range(nPlayers) :
-    G.append(
-        Equation( U[i] == count(V,V[i]) )
-    )
-    F.append(
-        maximize( U[i] )
-    )
+for i in range(n):
+    G.append( Equation( U[i] == 0 ) )
 
-e = EngineGame(V,U,C,G,F)
+C = PNE(V,U,G)
 
-S = e.search(0)
+S = Engine(V,[C]).search(ALL)
 
 for s in S :
-    print(s)
+    print(intVarArrayToStr(s))

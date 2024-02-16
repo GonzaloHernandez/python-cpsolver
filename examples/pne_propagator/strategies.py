@@ -33,9 +33,13 @@ for i in range(nPlayers) :
         maximize( U[i] )
     )
 
-e = EngineGame(V,U,C,G,F)
+C.append(
+    PNE(V,U,G,[],F)
+)
+
+e = Engine(V,C)
 
 S = e.search(0)
 
-for s in S :
-    print(s)
+# for s in S :
+#     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

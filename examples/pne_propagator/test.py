@@ -16,23 +16,31 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-pw,pc,pl = IntVarArray(3,0,1)
-uw,uc,ul = IntVarArray(3,0,1)
-de       = IntVar(0,1)
+px,py,pz = IntVarArray(3,1,3)
+ux,uy,uz = IntVarArray(3,-30,30)
 
-gw = Equation( uw == pw & pl)
-gc = Equation( uc == 0 )
-gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
+gx = Equation( ux == px + py + pz)
+gy = Equation( uy == px * py * pz)
+gz = Equation( uz == px - py - pz)
 
-c = PNE( [pw,pc,pl], [uw,uc,ul], [gw,gc,gl] )
+fx = maximize(ux)
+fy = maximize(uy)
+fz = maximize(uz)
 
-e = Engine( [pw,pc,pl], [c] )
+c1 = PNE( [px,py,pz], [ux,uy,uz], [gx,gy,gz], [], [fx,fy,fz])
+
+c2 = Equation( (px==2) & (py==1))
+
+e = Engine( [px,py,pz] + [ux,uy,uz],
+            [gx,gy,gz] + [c1]
+            )
 
 S = e.search(0)
 
 for s in S :
     print(intVarArrayToStr(s, IntVar.PRINT_VALUE))
 
-print('-------')
-for s in c.Nash :
-    print(s)
+# print('-------')
+# for s in c.Nash :
+#     print(s)
+

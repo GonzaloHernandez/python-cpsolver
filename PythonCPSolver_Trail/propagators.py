@@ -327,10 +327,11 @@ class PNE(Propagator) :
                         d.append(dt)
 
                 self.insert_table(i,d)
-                if self.cnt[i] > 0 :
+                if self.cnt[i] == 0 :
+                    self.cons.append( Equation( self.vars[i] <= t[i]) )
+                else :
                     self.cnt[i] -= 1
-                    if self.cnt[i] == 0 :
-                        self.cons.append( Equation( self.vars[i] <= t[i]) )
+
             if t in d :
                 self.checkNash(t,i-1)
 
