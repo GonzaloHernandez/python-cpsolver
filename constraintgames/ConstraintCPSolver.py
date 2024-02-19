@@ -1,4 +1,16 @@
-import sys, time
+#====================================================================
+# Constraint Games solver using Simple CP Solver 
+# Current version 1.0 (Using a PythonCPSolver_Trail)
+#
+# Gonzalo Hernandez
+# gonzalohernandez@hotmail.com
+# 2024
+#
+# Modules:
+#   ConstraintCPSolver
+#====================================================================
+
+import sys
 
 #--------------------------------------------------------------
 
@@ -27,7 +39,7 @@ class EngineGame(Engine) :
             self.cnt.append(0)
         
     #--------------------------------------------------------------
-    def search(self, tops=1) :
+    def search(self, tops=1) : # overwrite
 
         #------------------------------------
         i = 0
@@ -84,7 +96,7 @@ class EngineGame(Engine) :
 
             if not self.makeDecision(dec) : break
     
-        print(counter)
+        # print(counter) # For debugging purposes
     
         #------------------------------------
         return self.Nash

@@ -29,7 +29,7 @@ fy  = minimize(uy)
 
 e   = EngineGame([x,y],[ux,uy],[],[gx,gy],[fx,fy])
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
     print(s)

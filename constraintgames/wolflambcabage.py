@@ -25,7 +25,7 @@ gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) )
 
 e = EngineGame( [pw,pc,pl], [uw,uc,ul], [], [gw,gc,gl] )
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
     print(s)
