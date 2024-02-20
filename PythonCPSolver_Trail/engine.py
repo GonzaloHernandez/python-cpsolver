@@ -102,7 +102,11 @@ class Engine :
                         for v in self.vars :
                             s.append( IntVar(v.min, v.max, v.name) )
 
-                        self.sols.append( s )
+                        if tops==EAGER :
+                            print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
+                        else :
+                            self.sols.append( s )
+                        
                         if len(self.sols)==tops : 
                             break
                 

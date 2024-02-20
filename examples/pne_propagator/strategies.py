@@ -16,8 +16,8 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-nPlayers    = 5
-nStrategies = 5
+nPlayers    = 6
+nStrategies = 6
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
@@ -32,14 +32,11 @@ for i in range(nPlayers) :
     F.append(
         maximize( U[i] )
     )
+    C.append( NashConstraint(V,i,G[i],F[i]) )
 
-C.append(
-    PNE(V,U,G,[],F)
-)
+e = Engine(V+U,C+G)
 
-e = Engine(V,C)
+S = e.search(EAGER)
 
-S = e.search(0)
-
-# for s in S :
-#     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
+for s in S :
+    print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

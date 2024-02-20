@@ -197,10 +197,10 @@ class NashConstraint(Propagator) :
         self.pi     = pi
         self.goal   = goal
         self.func   = func
-        self.util   = self.func[1]
+        self.util   = self.func[EXPR]
         self.optc   = None
 
-        if self.func[0] ==  MAXIMIZE:
+        if self.func[TYPE] ==  MAXIMIZE:
             self.optc = Equation(
                 self.util >= IntVar( self.util.min, IntVar.INFINITE) )
         else :      # if is MINIMIZE
@@ -221,9 +221,9 @@ class NashConstraint(Propagator) :
         newvars,newgoal,newutil,newfunc \
             = copy.deepcopy([self.vars, self.goal, self.util, self.func])
 
-        newfunc[0]  = MINIMIZE if newfunc[0] == MAXIMIZE else MAXIMIZE
+        # newfunc[TYPE] = MINIMIZE if self.func[TYPE] == MAXIMIZE else MAXIMIZE
 
-        optv        = self.optc.exp.exp2
+        optv = self.optc.exp.exp2
 
         newvars[self.pi].min = self.oriv.min
         newvars[self.pi].max = self.oriv.max

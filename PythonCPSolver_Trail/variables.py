@@ -18,7 +18,8 @@ import math
 
 #====================================================================
 
-ALL         = 0     # For general purposes
+EAGER       = -1    # Present solutions eagerly
+ALL         = 0     # Store solutions in a list
 LEFT        = 1     # For general purposes
 RIGHT       = 2     # For general purposes
 
