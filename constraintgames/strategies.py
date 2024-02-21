@@ -16,8 +16,8 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-nPlayers    = 4
-nStrategies = 4
+nPlayers    = 5
+nStrategies = 5
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
@@ -35,7 +35,7 @@ for i in range(nPlayers) :
 
 e = EngineGame(V,U,C,G,F)
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
     print(s)

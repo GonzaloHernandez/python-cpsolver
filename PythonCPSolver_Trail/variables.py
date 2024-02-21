@@ -18,8 +18,8 @@ import math
 
 #====================================================================
 
-EAGER       = -1    # Present solutions eagerly
-ALL         = 0     # Store solutions in a list
+EAGER       = -1    # Present solutions eagerly (ignored when optimizing)
+ALL         = 0     # Store solutions in a list (ignored when optimizing)
 LEFT        = 1     # For general purposes
 RIGHT       = 2     # For general purposes
 

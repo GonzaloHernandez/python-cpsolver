@@ -16,20 +16,32 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-pw,pc,pl = IntVarArray(3,0,1)
-uw,uc,ul = IntVarArray(3,0,1)
+nPlayers    = 5
+nStrategies = 5
 
-gw = Equation( uw == pw & pl)
-gc = Equation( uc == 0 )
-gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
+x = IntVar(2,3,'x')
+y = IntVar(0,2,'y')
+z = IntVar(1,2,'z')
 
-cw = NashConstraint([pw,pc,pl],0,gw,maximize(uw))
-cc = NashConstraint([pw,pc,pl],1,gc,maximize(uc))
-cl = NashConstraint([pw,pc,pl],2,gl,maximize(ul))
+ux = IntVar(0,1,name='ux')
+uy = IntVar(0,1,name='uy')
+uz = IntVar(0,1,name='uz')
 
-e = EngineGame( [pw,pc,pl], [uw,uc,ul], [cw,cc,cl], [gw,gc,gl] )
+V = [x,y,z]
+U = [ux,uy,uz]
+G = [
+    Equation( ux == (x==y+z) ),
+    Equation( uy == (y==x-z) ),
+    Equation( uz == (x+1==y+z) )
+]
+C = []
+F = []
+
+e = EngineGame(V,U,C,G,F)
+# e = Engine(V+U,C+G)
 
 S = e.search(ALL)
 
 for s in S :
     print(s)
+    # print(intVarArrayToIntArray(s))

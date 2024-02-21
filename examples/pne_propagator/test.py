@@ -16,8 +16,8 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-px,py,pz = IntVarArray(3,1,3)
-ux,uy,uz = IntVarArray(3,-30,30)
+px,py,pz = IntVarArray(3,1,3,'v')
+ux,uy,uz = IntVarArray(3,-30,30,'u')
 
 gx = Equation( ux == px + py + pz)
 gy = Equation( uy == px * py * pz)
@@ -27,9 +27,9 @@ fx = maximize(ux)
 fy = maximize(uy)
 fz = maximize(uz)
 
-c1 = PNE( [px,py,pz], [ux,uy,uz], [gx,gy,gz], [], [fx,fy,fz])
+# c2 = Equation( (px==2) & (py==1))
+c1 = PNE([px,py,pz],[ux,py,uz],[gx,gy,gz],[],[fx,fy,fz])
 
-c2 = Equation( (px==2) & (py==1))
 
 e = Engine( [px,py,pz] + [ux,uy,uz],
             [gx,gy,gz] + [c1]
@@ -40,7 +40,4 @@ S = e.search(0)
 for s in S :
     print(intVarArrayToStr(s, IntVar.PRINT_VALUE))
 
-# print('-------')
-# for s in c.Nash :
-#     print(s)
 

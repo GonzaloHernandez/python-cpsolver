@@ -221,7 +221,7 @@ class NashConstraint(Propagator) :
         newvars,newgoal,newutil,newfunc \
             = copy.deepcopy([self.vars, self.goal, self.util, self.func])
 
-        # newfunc[TYPE] = MINIMIZE if self.func[TYPE] == MAXIMIZE else MAXIMIZE
+        newfunc[TYPE] = MINIMIZE if self.func[TYPE] == MAXIMIZE else MAXIMIZE
 
         optv = self.optc.exp.exp2
 

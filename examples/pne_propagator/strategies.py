@@ -32,7 +32,7 @@ for i in range(nPlayers) :
     F.append(
         maximize( U[i] )
     )
-    C.append( NashConstraint(V,i,G[i],F[i]) )
+C.append( PNE(V,U,G,[],F) )
 
 e = Engine(V+U,C+G)
 
