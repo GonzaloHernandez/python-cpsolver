@@ -16,9 +16,6 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-nPlayers    = 5
-nStrategies = 5
-
 x = IntVar(2,3,'x')
 y = IntVar(0,2,'y')
 z = IntVar(1,2,'z')

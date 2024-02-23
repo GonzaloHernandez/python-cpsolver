@@ -28,7 +28,7 @@ fy = maximize(uy)
 fz = maximize(uz)
 
 # c2 = Equation( (px==2) & (py==1))
-c1 = PNE([px,py,pz],[ux,py,uz],[gx,gy,gz],[],[fx,fy,fz])
+c1 = PNE_Eager([px,py,pz],[ux,py,uz],[gx,gy,gz],[],[fx,fy,fz])
 
 
 e = Engine( [px,py,pz] + [ux,uy,uz],

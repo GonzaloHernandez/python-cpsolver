@@ -178,6 +178,19 @@ def alldifferent(vars) -> Expression:
 
 #--------------------------------------------------------------
 
+def clause(vars,vals) -> Expression:
+    exp = (vars[0] != vals[0]) if len(vars)==1 else None
+    for i in range(len(vars)):
+        if exp is None :
+            exp = (vars[i] != vals[i])
+        else :
+            exp = exp | (vars[i] != vals[i])
+
+    return exp
+
+#--------------------------------------------------------------
+
+
 def sum(vars) -> Expression:
     exp = vars[0]
     for i in range(1,len(vars)):
@@ -190,67 +203,9 @@ import importlib, copy
 
 engine = importlib.import_module('PythonCPSolver_Trail.engine')
 
-class NashConstraint(Propagator) :
-    def __init__(self, vars,pi,goal,func) -> None:
-        self.vars   = vars
-        self.oriv   = vars[pi]
-        self.pi     = pi
-        self.goal   = goal
-        self.func   = func
-        self.util   = self.func[EXPR]
-        self.optc   = None
-
-        if self.func[TYPE] ==  MAXIMIZE:
-            self.optc = Equation(
-                self.util >= IntVar( self.util.min, IntVar.INFINITE) )
-        else :      # if is MINIMIZE
-            self.optc = Equation(
-                self.util <= IntVar(-IntVar.INFINITE, self.util.max) )
-
-    #--------------------------------------------------------------
-    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return 'NashConstraint propagator'
-    
-    #--------------------------------------------------------------
-    def setEngine(self, engine) :
-        optv = self.optc.exp.exp2
-        optv.setEngine( engine )
-
-    #--------------------------------------------------------------
-    def prune(self) :
-        newvars,newgoal,newutil,newfunc \
-            = copy.deepcopy([self.vars, self.goal, self.util, self.func])
-
-        newfunc[TYPE] = MINIMIZE if self.func[TYPE] == MAXIMIZE else MAXIMIZE
-
-        optv = self.optc.exp.exp2
-
-        newvars[self.pi].min = self.oriv.min
-        newvars[self.pi].max = self.oriv.max
-
-        e = engine.Engine(
-            [newutil] + newvars ,
-            [newgoal],
-            newfunc
-        )
-
-        s = e.search()
-
-        if s != [] :
-            v = s[0][0]
-            if self.func[0] ==  MAXIMIZE and self.util.getVal() > optv.min :
-                optv.setge( v.getVal() )
-                
-            elif self.func[0] ==  MINIMIZE and self.util.getVal() < optv.min :
-                optv.setle( v.getVal() )
-
-        return self.optc.prune()
-        # return True
-
-
 #====================================================================
 
-class PNE(Propagator) :
+class PNE_Eager(Propagator) :
     def __init__(self, V,U,G,C=[],F=[]) -> None:
         self.V,     \
         self.U,     \
@@ -281,6 +236,12 @@ class PNE(Propagator) :
     
     #--------------------------------------------------------------
     def prune(self) :
+
+        for i,v in enumerate(self.V) :
+            if self.cnt[i] <= 0 :
+                self.checkEndOfTable(i)
+                # self.cons.append( Equation( self.vars[i] <= t[i]) )
+                pass
 
         allAssigned = True
         for v in self.vars :
@@ -327,10 +288,7 @@ class PNE(Propagator) :
                         d.append(dt)
 
                 self.insert_table(i,d)
-                if self.cnt[i] == 0 :
-                    self.cons.append( Equation( self.vars[i] <= t[i]) )
-                else :
-                    self.cnt[i] -= 1
+                self.cnt[i] -= 1
 
             if t in d :
                 self.checkNash(t,i-1)
@@ -380,6 +338,201 @@ class PNE(Propagator) :
 
         for b in range(len(self.BR[i])) :
             if self.BR[i][b][0:i]+self.BR[i][b][i+1:self.n] == t[0:i]+t[i+1:self.n] :
+                br.append( self.BR[i][b] )
+        return br
+
+    #--------------------------------------------------------------
+    def insert_table(self,i,d) :
+        for t in d :
+            if t not in self.BR[i] :
+                self.BR[i].append(t)
+
+#====================================================================
+
+class BestResponsesEager(Propagator) :
+    def __init__(self, V,p,u,g,f=unoptimize()) -> None:
+        self.V  = V
+        self.p  = p
+        self.u  = u
+        self.g  = g
+        self.f  = maximize(u) if f==unoptimize() else f
+        self.o  = copy.deepcopy(p)
+        self.C  = []
+
+        self.BR = []
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'BestResponses propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+
+        vars    = [self.u]
+        others  = []
+        values  = []
+        for v in self.V :
+            if id(v) != id(self.p) :
+                if not v.isAssigned(): return True
+                vars.append(v)
+                others.append(v)
+                values.append(v.getVal())
+            else :
+                vars.append( self.p )
+
+        min, max                = [self.p.min, self.p.max]
+        self.p.min, self.p.max  = [self.o.min, self.o.max]
+
+        e = engine.Engine(vars, self.C + [self.g], self.f)
+        S = e.search()
+        if S != [] :
+            val = e.optc.exp.exp2.getVal()
+            e = engine.Engine(vars,self.C+[ self.g, Equation( self.u == val) ])
+            S = e.search(ALL)
+
+        if S != [] :
+            self.BR += S
+
+            self.C.append( Equation( clause(others,values) ) )
+
+            for r in S :
+                print(intVarArrayToStr(r[1:]))
+
+        self.p.min, self.p.max  = [min, max]
+
+        return True
+
+#====================================================================
+
+class Equilibrium(Propagator) :
+    def __init__(self, V, U, G, F=[], C=[]) -> None:
+        model  = copy.deepcopy([V,U,G,F,C])
+        self.oV = model[0]
+        self.oU = model[1]
+        self.oG = model[2]
+        self.oF = model[3]
+        self.oC = model[4]
+
+        self.vars  = V
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'Equilibrium propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+        for v in self.vars :
+            if not v.isAssigned() :
+                return True
+
+        t = intVarArrayToIntArray(self.vars)
+        
+        for i,v in enumerate(self.vars) :
+            if self.isThereABetterResponse(t,i) :
+                return False
+        return True
+
+    #--------------------------------------------------------------
+    def isThereABetterResponse(self,t,i) :
+        C = [] + self.oC
+        T = [] + self.oC
+        for j in range(len(self.oV)) :
+            if j != i :
+                C.append( Equation( self.oV[j] == t[j] ) )
+            T.append( Equation( self.oV[j] == t[j] ) )
+
+        # Utility calculation
+        e = engine.Engine([self.oU[i]] + self.oV, [self.oG[i]] + T )
+        S = e.search()
+        val = S[0][0].getVal()
+
+        # Looking for a best response
+        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
+            C.append( Equation( self.oU[i] < val) )
+        else :
+            C.append( Equation( self.oU[i] > val) )
+
+        e = engine.Engine( self.oV + [self.oU[i]] , [self.oG[i]] + C )
+        S = e.search()
+
+        return ( S != [] )
+
+#====================================================================
+
+class EquilibriumDB(Propagator) :
+    def __init__(self, V, U, G, F=[], C=[]) -> None:
+        model  = copy.deepcopy([V,U,G,F,C])
+        self.oV = model[0]
+        self.oU = model[1]
+        self.oG = model[2]
+        self.oF = model[3]
+        self.oC = model[4]
+
+        self.vars  = V
+
+        self.BR = []
+        for i in range(len(self.vars)) :
+            self.BR.append([])
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'Equilibrium DB propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+        for v in self.vars :
+            if not v.isAssigned() :
+                return True
+
+        t = intVarArrayToIntArray(self.vars)
+
+        for i,v in enumerate(self.vars) :
+            BR = self.search_table(t,i)
+            if not t in self.BR[i] :
+                BR = self.findBestResponses(t,i)
+                if BR != [] :
+                    if not t in BR : return False
+
+        return True
+
+    #--------------------------------------------------------------
+    def findBestResponses(self,t,i) :
+        C = [] + self.oC
+        for j in range(len(self.oV)) :
+            if j != i :
+                C.append( Equation( self.oV[j] == t[j] ) )
+
+        S = []
+        if self.oF == [] :
+            C.append( Equation( self.oU[i] == 1))
+            S = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C).search(ALL)
+        else :
+            F = self.oF[i]
+            e = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C, self.oF[i] )
+            S = e.search()
+
+            if S != [] :
+                if F[TYPE]==MAXIMIZE :  val = e.optc.exp.exp2.min
+                else :                  val = e.optc.exp.exp2.max
+
+                C.append( Equation( self.oU[i] == val ) )
+                S = engine.Engine( [self.oU[i]] + self.oV, self.oC + [self.oG[i]] + C).search(ALL)
+        d = []
+        for s in S :
+            d.append(intVarArrayToIntArray(s[1:]))
+
+        self.insert_table(i,d)
+        return d
+
+    #--------------------------------------------------------------
+    def search_table(self,t,i) :
+        if len(self.BR[i]) <= 0 : return []
+
+        n = len(self.vars)
+        br = []
+
+        for b in range(len(self.BR[i])) :
+            if self.BR[i][b][0:i]+self.BR[i][b][i+1:n] == t[0:i]+t[i+1:n] :
                 br.append( self.BR[i][b] )
         return br
 

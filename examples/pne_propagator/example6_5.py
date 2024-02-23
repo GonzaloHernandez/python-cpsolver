@@ -30,9 +30,9 @@ fx = maximize(ux)
 fy = maximize(uy)
 fz = maximize(uz)
 
-c = PNE([x,y,z],[ux,uy,uz],[gx,gy,gz],[],[fx,fy,fz])
+c = EquilibriumDB([x,y,z],[ux,uy,uz],[gx,gy,gz],[fx,fy,fz])
 
 S = Engine( [x,y,z], [c] ).search(ALL)
 
-# for s in S :
-#     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
+for s in S :
+    print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

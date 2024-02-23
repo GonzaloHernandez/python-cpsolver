@@ -428,6 +428,11 @@ def minimize(exp) -> list:
 def maximize(exp) -> list:
     return [MAXIMIZE,exp]
 
+#--------------------------------------------------------------
+
+def unoptimize() -> list:
+    return [NONEOPTI,None]
+
 #====================================================================
 
 def IntVarArray(n,min,max,prefix='_') -> list:
