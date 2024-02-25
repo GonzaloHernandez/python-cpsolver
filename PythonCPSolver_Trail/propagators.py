@@ -462,13 +462,13 @@ class Equilibrium(Propagator) :
 class EquilibriumDB(Propagator) :
     def __init__(self, V, U, G, F=[], C=[]) -> None:
         model  = copy.deepcopy([V,U,G,F,C])
-        self.oV = model[0]
-        self.oU = model[1]
-        self.oG = model[2]
-        self.oF = model[3]
-        self.oC = model[4]
+        self.oV = model[0]  # Original Variables
+        self.oU = model[1]  # Original Utilities
+        self.oG = model[2]  # Original Goals
+        self.oF = model[3]  # Original Functions
+        self.oC = model[4]  # Original Hard Constraints
 
-        self.vars  = V
+        self.vars  = V  # Variables on current searching
 
         self.BR = []
         for i in range(len(self.vars)) :
@@ -487,19 +487,13 @@ class EquilibriumDB(Propagator) :
         t = intVarArrayToIntArray(self.vars)
 
         for i,v in reversed(list(enumerate(self.vars))) :
-            BR = self.search_table(t,i)
-            # if not t in BR:
-            if BR != [] :
-                if not t in BR : return False
-
-            BR = self.findBestResponses(t,i)
-            if BR != [] :
-                if not t in BR : return False
-
+            if not self.isBestResponseTable(t,i) :
+                if not self.isBestResponseNew(t,i) :
+                    return False
         return True
 
     #--------------------------------------------------------------
-    def findBestResponses(self,t,i) :
+    def isBestResponseNew(self,t,i) :
         C = [] + self.oC
         for j in range(len(self.oV)) :
             if j != i :
@@ -520,37 +514,48 @@ class EquilibriumDB(Propagator) :
 
                 C.append( Equation( self.oU[i] == val ) )
                 S = engine.Engine( [self.oU[i]] + self.oV, self.oC + [self.oG[i]] + C).search(ALL)
+
+        isBestResponse = False
         d = []
         for s in S :
-            d.append(intVarArrayToIntArray(s[1:]))
-
-        self.insert_table(i,d)
-        return d
+            r = intVarArrayToIntArray(s[1:])
+            d.append(r)
+            if r == t :
+                isBestResponse = True
+        
+        if d != [] :
+            self.insert_table(i,d)
+            return isBestResponse
+        
+        return False
 
     #--------------------------------------------------------------
-    def search_table(self,t,i) :
-        if len(self.BR[i]) <= 0 : return []
+    def isBestResponseTable(self,t,i) -> bool :
+        if len(self.BR[i]) <= 0 : return False
 
-        n = len(self.vars)
-        br = []
-
-        for b in range(len(self.BR[i])) :
-            b_ = self.BR[i][b][0:i]+self.BR[i][b][i+1:n]
-            t_ = t[0:i]+t[i+1:n]
-            if b_ == t_ :
-                br.append( self.BR[i][b] )
-        return br
-
+        for r in self.BR[i] :
+            if r == t :
+                return True
+        
+        return False
+    
     #--------------------------------------------------------------
     def insert_table(self,i,d) :
         for t in d :
             if t not in self.BR[i] :
                 self.BR[i].append(t)
 
-    #--------------------------------------------------------------
-    # def isThereAPreviewsBetterResponse(self,t,i) -> bool :
-    #     if len(self.BR[i]) <= 0 : return False
+    # #--------------------------------------------------------------
+    # def search_table(self,t,i) :
+    #     if len(self.BR[i]) <= 0 : return []
 
-    #     for b in range(self.BR[i]) :
-    #         if self.BR[i] == t :
-    #             return False
+    #     n = len(self.vars)
+    #     br = []
+
+    #     for b in range(len(self.BR[i])) :
+    #         b_ = self.BR[i][b][0:i]+self.BR[i][b][i+1:n]
+    #         t_ = t[0:i]+t[i+1:n]
+    #         if b_ == t_ :
+    #             br.append( self.BR[i][b] )
+    #     return br
+

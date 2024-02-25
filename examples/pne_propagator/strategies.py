@@ -16,8 +16,8 @@ os.system("clear")
 sys.path.insert(1,".")
 from constraintgames.ConstraintCPSolver import *
 
-nPlayers    = 6
-nStrategies = 6
+nPlayers    = 5
+nStrategies = 5
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
@@ -33,11 +33,11 @@ for i in range(nPlayers) :
         maximize( U[i] )
     )
 
-C.append( Equilibrium(V,U,G,F) )
+C.append( EquilibriumDB(V,U,G,F) )
 
 e = Engine(V,C)
 
-S = e.search(ALL)
+S = e.search(EAGER)
 
 for s in S :
     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))

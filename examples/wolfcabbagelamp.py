@@ -32,10 +32,10 @@ gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) )
 e = Engine( 
     [pw,pc,pl] + [uw,uc,ul], 
     [gw,gc,gl] + 
-    [Equilibrium([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
+    [EquilibriumDB([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
 )
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
     print( intVarArrayToStr(s,IntVar.PRINT_VALUE) )
