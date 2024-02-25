@@ -486,12 +486,15 @@ class EquilibriumDB(Propagator) :
 
         t = intVarArrayToIntArray(self.vars)
 
-        for i,v in enumerate(self.vars) :
+        for i,v in reversed(list(enumerate(self.vars))) :
             BR = self.search_table(t,i)
-            if not t in self.BR[i] :
-                BR = self.findBestResponses(t,i)
-                if BR != [] :
-                    if not t in BR : return False
+            # if not t in BR:
+            if BR != [] :
+                if not t in BR : return False
+
+            BR = self.findBestResponses(t,i)
+            if BR != [] :
+                if not t in BR : return False
 
         return True
 
@@ -532,7 +535,9 @@ class EquilibriumDB(Propagator) :
         br = []
 
         for b in range(len(self.BR[i])) :
-            if self.BR[i][b][0:i]+self.BR[i][b][i+1:n] == t[0:i]+t[i+1:n] :
+            b_ = self.BR[i][b][0:i]+self.BR[i][b][i+1:n]
+            t_ = t[0:i]+t[i+1:n]
+            if b_ == t_ :
                 br.append( self.BR[i][b] )
         return br
 
@@ -541,3 +546,11 @@ class EquilibriumDB(Propagator) :
         for t in d :
             if t not in self.BR[i] :
                 self.BR[i].append(t)
+
+    #--------------------------------------------------------------
+    # def isThereAPreviewsBetterResponse(self,t,i) -> bool :
+    #     if len(self.BR[i]) <= 0 : return False
+
+    #     for b in range(self.BR[i]) :
+    #         if self.BR[i] == t :
+    #             return False

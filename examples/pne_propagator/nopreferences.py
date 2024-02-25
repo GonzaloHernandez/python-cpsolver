@@ -25,7 +25,7 @@ G = []
 for i in range(n):
     G.append( Equation( U[i] == 1 ) )
 
-c = Equilibrium(V,U,G)
+c = EquilibriumDB(V,U,G)
 
 S = Engine(V,[c]).search(ALL)
 
