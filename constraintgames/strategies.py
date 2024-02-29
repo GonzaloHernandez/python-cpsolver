@@ -35,7 +35,13 @@ for i in range(nPlayers) :
 
 e = EngineGame(V,U,C,G,F)
 
+from datetime import datetime
+
+t1 = datetime.now()
 S = e.search(ALL)
+t2 = datetime.now()
 
 for s in S :
     print(s)
+print('------')
+print(f'{t2-t1}')

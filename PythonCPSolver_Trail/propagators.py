@@ -470,9 +470,13 @@ class EquilibriumDB(Propagator) :
 
         self.vars  = V  # Variables on current searching
 
-        self.BR = []
+        self.subspace   = []
+
+        self.brs = []
+        self.cnt = []
         for i in range(len(self.vars)) :
-            self.BR.append([])
+            self.brs.append([])
+            self.cnt.append(-999)
 
     #--------------------------------------------------------------
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
@@ -480,14 +484,59 @@ class EquilibriumDB(Propagator) :
     
     #--------------------------------------------------------------
     def prune(self) :
+        n = len(self.vars)
+        
+        allAssigned = True
+        newsubspace = []
         for v in self.vars :
-            if not v.isAssigned() :
-                return True
+            if v.isAssigned() :
+                newsubspace.append(v.getVal())
+            else :
+                allAssigned = False
 
-        t = intVarArrayToIntArray(self.vars)
+        self.analyseSubscape(newsubspace)
 
+        if allAssigned :
+            t = intVarArrayToIntArray(self.vars)
+            isNash = self.checkNash(t)
+            return isNash
+
+        return True
+    
+    #--------------------------------------------------------------
+    def analyseSubscape(self, newsubspace) :
+        n = len(self.vars)
+
+        i = 0
+        while i < min(len(newsubspace),len(self.subspace)) :
+            if newsubspace[i] != self.subspace[i] :
+                break
+            i += 1
+        
+        if i == len(newsubspace) or i == n :  return
+
+        if self.cnt[i] == -999 :
+
+            self.brs[i] = []
+            self.cnt[i] = 1
+            for j in range(i+1, n) :
+                self.cnt[i] *= self.vars[j].card()
+                self.brs[j] = []
+                self.cnt[j] = -999
+        else :
+ 
+            for j in range(i+1, n) :
+                self.brs[j] = []
+                self.cnt[j] = -999
+        
+        self.subspace = newsubspace
+
+    #--------------------------------------------------------------
+    def checkNash(self,t) -> bool :
         for i,v in reversed(list(enumerate(self.vars))) :
-            if not self.isBestResponseTable(t,i) :
+            if not self.isBestResponseInTable(t,i) :
+                if self.cnt[i] <= 0 :
+                    return False
                 if not self.isBestResponseNew(t,i) :
                     return False
         return True
@@ -501,8 +550,16 @@ class EquilibriumDB(Propagator) :
 
         S = []
         if self.oF == [] :
-            C.append( Equation( self.oU[i] == 1))
-            S = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C).search(ALL)
+            S = engine.Engine( 
+                [self.oU[i]] + self.oV,
+                [self.oG[i]] + C + [Equation( self.oU[i] == 1)]
+            ).search(ALL)
+
+            if S==[] :
+                S = engine.Engine( 
+                    [self.oU[i]] + self.oV,
+                    [self.oG[i]] + C + [Equation( self.oU[i] == 0)]
+                ).search(ALL)
         else :
             F = self.oF[i]
             e = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C, self.oF[i] )
@@ -522,40 +579,34 @@ class EquilibriumDB(Propagator) :
             d.append(r)
             if r == t :
                 isBestResponse = True
-        
+
+        self.cnt[i] -= 1
+
         if d != [] :
-            self.insert_table(i,d)
+            self.saveResponsesInTable(i,d)
             return isBestResponse
         
         return False
 
     #--------------------------------------------------------------
-    def isBestResponseTable(self,t,i) -> bool :
-        if len(self.BR[i]) <= 0 : return False
+    def isBestResponseInTable(self,t,i) -> bool :
+        if len(self.brs[i]) <= 0 : return False
 
-        for r in self.BR[i] :
+        for r in self.brs[i] :
             if r == t :
                 return True
         
         return False
     
     #--------------------------------------------------------------
-    def insert_table(self,i,d) :
+    def saveResponsesInTable(self,i,d) :
         for t in d :
-            if t not in self.BR[i] :
-                self.BR[i].append(t)
+            if t not in self.brs[i] :
+                self.brs[i].append(t)
 
-    # #--------------------------------------------------------------
-    # def search_table(self,t,i) :
-    #     if len(self.BR[i]) <= 0 : return []
-
-    #     n = len(self.vars)
-    #     br = []
-
-    #     for b in range(len(self.BR[i])) :
-    #         b_ = self.BR[i][b][0:i]+self.BR[i][b][i+1:n]
-    #         t_ = t[0:i]+t[i+1:n]
-    #         if b_ == t_ :
-    #             br.append( self.BR[i][b] )
-    #     return br
+    #--------------------------------------------------------------
+    def checkEndOfTable(self,i) :
+        for t in self.brs[i] :
+            if self.checkNash(t) :
+                print(f'PNE* {t}')
 
