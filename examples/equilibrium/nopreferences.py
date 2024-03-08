@@ -16,32 +16,18 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 
-x = IntVar(2,3,'x')
-y = IntVar(0,2,'y')
-z = IntVar(1,2,'z')
+n = 3
 
-ux = IntVar(0,1,name='ux')
-uy = IntVar(0,1,name='uy')
-uz = IntVar(0,1,name='uz')
+V = IntVarArray(n,1,3)
+U = IntVarArray(n,1,3)
 
-gx = Equation( ux == (x==y+z) )
-gy = Equation( uy == (y==x-z) )
-gz = Equation( uz == (x+1==y+z) )
+G = []
+for i in range(n): 
+    G.append( Constraint( U[i] == 1 ) )
 
+c = Equilibrium(V,U,G,[],[])
 
-V = [x,y,z]
-U = [ux,uy,uz]
-G = [gx,gy,gz]
-F = []
-
-C = [
-    EquilibriumDB(V,U,G)
-]
-
-e = Engine(V,C)
-
-S = e.search(ALL)
+S = Engine(V,[c]).search(ALL)
 
 for s in S :
-    print(intVarArrayToIntArray(s))
-
+    print(intVarArrayToStr(s))

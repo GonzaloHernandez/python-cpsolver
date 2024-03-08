@@ -27,9 +27,9 @@ uz = IntVar(0,1,name='uz')
 V = [x,y,z]
 U = [ux,uy,uz]
 G = [
-    Equation( ux == (x==y+z) ),
-    Equation( uy == (y==x-z) ),
-    Equation( uz == (x+1==y+z) )
+    Constraint( ux == (x==y+z) ),
+    Constraint( uy == (y==x-z) ),
+    Constraint( uz == (x+1==y+z) )
 ]
 C = []
 F = []

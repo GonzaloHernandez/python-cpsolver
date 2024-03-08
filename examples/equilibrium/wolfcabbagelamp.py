@@ -25,9 +25,9 @@ uw = IntVar(0,1,'uw')
 uc = IntVar(0,1,'uc')
 ul = IntVar(0,1,'ul')
 
-gw = Equation( uw == pw & pl)
-gc = Equation( uc == 0 )
-gl = Equation( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
+gw = Constraint( uw == pw & pl)
+gc = Constraint( uc == 0 )
+gl = Constraint( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
 
 e = Engine( 
     [pw,pc,pl] + [uw,uc,ul], 

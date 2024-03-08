@@ -48,7 +48,7 @@ C.append( Linear(Vdia2, t) )
 
 C.append( AllDifferent(V) )
 
-C.append( Equation( t == (n*n*(n*n+1)//2)//n ) ) 
+C.append( Constraint( t == (n*n*(n*n+1)//2)//n ) ) 
 
 t1 = time.time()
 S = Engine( V+[t], C ).search()

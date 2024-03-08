@@ -23,18 +23,18 @@ y = IntVar(0,1,'y')
 ux = IntVar(0,3,'ux')
 uy = IntVar(0,3,'uy')
 
-gx = Equation( ux == ( (y*2)-x+1 ) )
-gy = Equation( uy == ( (x*2)-y+1 ) )
-
-nx = NashConstraint( [x,y], 0, gx, minimize(ux) )
-ny = NashConstraint( [x,y], 1, gy, minimize(uy) )
+gx = Constraint( ux == ( (y*2)-x+1 ) )
+gy = Constraint( uy == ( (x*2)-y+1 ) )
 
 e = Engine( 
     [ x, y] + [ux,uy], 
-    [gx,gy] #+ [nx,ny] 
+    [gx,gy] 
 )
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
-    print( intVarArrayToStr(s,IntVar.PRINT_VALUE) )
+    print( intVarArrayToStr(s) )
+
+# -------------------------------------------------------
+# Pendant to review the multiplication in Constraint

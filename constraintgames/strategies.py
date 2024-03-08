@@ -27,7 +27,7 @@ C = []
 F = []
 for i in range(nPlayers) :
     G.append(
-        Equation( U[i] == count(V,V[i]) )
+        Constraint( U[i] == count(V,V[i]) )
     )
     F.append(
         maximize( U[i] )

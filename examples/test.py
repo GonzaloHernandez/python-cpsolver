@@ -16,17 +16,16 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 
-x,y = IntVarArray(2,-3,3,'v')
-t = IntVar(2,5,'t')
+x = IntVar(-1,1)
+y = IntVar(-5,5)
+
 
 e = Engine(
-    [x,y] + [t],
-    [ Equation( x == -(t+1)) ]
+    [x,y],
+    [ Constraint(y == (x*2)) ]
 )
 
-S = e.search(0)
+S = e.search(ALL)
 
 for s in S :
     print( intVarArrayToStr(s) )
-
-print(len(S))

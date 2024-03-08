@@ -117,7 +117,7 @@ class EngineGame(Engine) :
                     C = []
                     for j in range(len(self.V)) :
                         if j != i :
-                            C.append( Equation( self.V[j] == t[j] ) )
+                            C.append( Constraint( self.V[j] == t[j] ) )
                     
                     S = Engine(self.V + self.U , self.C + C ).search(ALL)
 
@@ -135,11 +135,11 @@ class EngineGame(Engine) :
         C = []
         for j in range(len(self.V)) :
             if j != i :
-                C.append( Equation( self.V[j] == t[j] ) )
+                C.append( Constraint( self.V[j] == t[j] ) )
 
         S = []
         if self.F == [] :
-            C.append( Equation( self.U[i] == 1))
+            C.append( Constraint( self.U[i] == 1))
             S = Engine( self.V + self.U , self.C + self.G + C).search(ALL)
         else :
             F = self.F[i]
@@ -150,7 +150,7 @@ class EngineGame(Engine) :
                 if F[TYPE]==MAXIMIZE :  val = E.optc.exp.exp2.min
                 else :                  val = E.optc.exp.exp2.max
 
-                C.append( Equation( self.U[i] == val ) )
+                C.append( Constraint( self.U[i] == val ) )
                 S = Engine( self.V + self.U , self.C + self.G + C).search(ALL)
 
         d = []

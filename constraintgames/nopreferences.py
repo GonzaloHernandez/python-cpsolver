@@ -23,7 +23,7 @@ U = IntVarArray(n,0,n)
 
 G = []
 for i in range(n):
-    G.append( Equation( U[i] == 0 ) )
+    G.append( Constraint( U[i] == 0 ) )
 
 # G.append( Equation( U[0] == 0) )
 # G.append( Equation( U[1] == 0) )

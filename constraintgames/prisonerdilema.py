@@ -21,8 +21,8 @@ y   = IntVar(0,1,'y')
 ux  = IntVar(0,3,'ux')
 uy  = IntVar(0,3,'uy')
 
-gx  = Equation( ux == ( (y*2)-x+1 ) )
-gy  = Equation( uy == ( (x*2)-y+1 ) )
+gx  = Constraint( ux == ( (y*2)-x+1 ) )
+gy  = Constraint( uy == ( (x*2)-y+1 ) )
 
 fx  = minimize(ux)
 fy  = minimize(uy)

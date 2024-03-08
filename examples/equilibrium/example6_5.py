@@ -22,9 +22,9 @@ z = IntVar(1,3)
 
 ux,uy,uz = IntVarArray(3,0,1)
 
-gx = Equation( ux == (x == y*z) )
-gy = Equation( uy == (y == x*z) )
-gz = Equation( uz == ( (x*y <= z) & (z <= x+y) & ((x+1)*(y+1) != z*3) ))
+gx = Constraint( ux == (x == y*z) )
+gy = Constraint( uy == (y == x*z) )
+gz = Constraint( uz == ( (x*y <= z) & (z <= x+y) & ((x+1)*(y+1) != z*3) ))
 
 fx = maximize(ux)
 fy = maximize(uy)

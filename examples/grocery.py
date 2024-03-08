@@ -18,9 +18,9 @@ from PythonCPSolver_Trail.engine import *
 
 x,y,z,w,t = IntVarArray(5, 1, 711)
 
-c0 = Equation( t == 711 )
-c1 = Equation( x + y + z + w == t )
-c2 = Equation( x * y * z * w == t*100*100*100 )
+c0 = Constraint( t == 711 )
+c1 = Constraint( x + y + z + w == t )
+c2 = Constraint( x * y * z * w == t*100*100*100 )
 
 e = Engine( [x,y,z,w,t], [c0,c1,c2] )
 

@@ -390,25 +390,26 @@ class Expression (Operable) :
                 if not self.exp1.project( nmin+rmin , nmax+rmax ) : return False
                 if not self.exp2.project( lmin-nmax , lmax-nmin ) : return False
             case '*' :
-                if rmin == 0 : rmin = 1
-                if rmax == 0 : rmax = 1
+                # if rmin == 0 : rmin = 1
+                # if rmax == 0 : rmax = 1
                 
-                [lmin,lmax] = [
-                    min(nmin//rmin, nmin//rmax, nmax//rmin, nmax//rmax),
-                    max(math.ceil(nmin/rmin), math.ceil(nmin/rmax), 
-                        math.ceil(nmax/rmin), math.ceil(nmax/rmax))
-                ]
-                if not self.exp1.project(lmin, lmax) : return False
+                # [lmin,lmax] = [
+                #     min(nmin//rmin, nmin//rmax, nmax//rmin, nmax//rmax),
+                #     max(math.ceil(nmin/rmin), math.ceil(nmin/rmax), 
+                #         math.ceil(nmax/rmin), math.ceil(nmax/rmax))
+                # ]
+                # if not self.exp1.project(lmin, lmax) : return False
 
-                if lmin == 0 : lmin = 1
-                if lmax == 0 : lmax = 1
+                # if lmin == 0 : lmin = 1
+                # if lmax == 0 : lmax = 1
 
-                [rmin,rmax] = [
-                    min(nmin//lmin, nmin//lmax, nmax//lmin, nmax//lmax),
-                    max(math.ceil(nmin/lmin), math.ceil(nmin/lmax), 
-                        math.ceil(nmax/lmin), math.ceil(nmax/lmax))
-                ]
-                if not self.exp2.project(rmin, rmax) : return False
+                # [rmin,rmax] = [
+                #     min(nmin//lmin, nmin//lmax, nmax//lmin, nmax//lmax),
+                #     max(math.ceil(nmin/lmin), math.ceil(nmin/lmax), 
+                #         math.ceil(nmax/lmin), math.ceil(nmax/lmax))
+                # ]
+                # if not self.exp2.project(rmin, rmax) : return False
+                pass
         return True
 
     #--------------------------------------------------------------
@@ -444,7 +445,7 @@ def IntVarArray(n,min,max,prefix='_') -> list:
 
 #--------------------------------------------------------------
 
-def intVarArrayToStr(vars, printview=IntVar.PRINT_MIX) -> str:
+def intVarArrayToStr(vars, printview=IntVar.PRINT_VALUE) -> str:
     text = ''
     for v in vars : 
         text += v.toStr(printview) + ' '

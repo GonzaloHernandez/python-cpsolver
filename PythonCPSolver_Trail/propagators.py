@@ -138,7 +138,7 @@ class LinearArgs(Propagator) :
 
 #====================================================================
     
-class Equation(Propagator) :
+class Constraint(Propagator) :
     def __init__(self, exp) -> None:
         self.exp = exp
 
@@ -153,7 +153,7 @@ class Equation(Propagator) :
     
     #--------------------------------------------------------------
     def match(self, localvars, globalvars) :
-        return Equation( self.exp.match(localvars, globalvars) )
+        return Constraint( self.exp.match(localvars, globalvars) )
     
 #====================================================================
 
@@ -189,7 +189,6 @@ def clause(vars,vals) -> Expression:
     return exp
 
 #--------------------------------------------------------------
-
 
 def sum(vars) -> Expression:
     exp = vars[0]
@@ -279,7 +278,7 @@ class PNE_Eager(Propagator) :
                     C = []
                     for j in range(len(self.V)) :
                         if j != i :
-                            C.append( Equation( self.V[j] == t[j] ) )
+                            C.append( Constraint( self.V[j] == t[j] ) )
                     
                     S = engine.Engine(self.V + self.U , self.C + self.G + C ).search(ALL)
 
@@ -298,11 +297,11 @@ class PNE_Eager(Propagator) :
         C = []
         for j in range(len(self.V)) :
             if j != i :
-                C.append( Equation( self.V[j] == t[j] ) )
+                C.append( Constraint( self.V[j] == t[j] ) )
 
         S = []
         if self.F == [] :
-            C.append( Equation( self.U[i] == 1))
+            C.append( Constraint( self.U[i] == 1))
             S = engine.Engine( self.V + self.U , self.C + self.G + C).search(ALL)
         else :
             F = self.F[i]
@@ -313,7 +312,7 @@ class PNE_Eager(Propagator) :
                 if F[TYPE]==MAXIMIZE :  val = E.optc.exp.exp2.min
                 else :                  val = E.optc.exp.exp2.max
 
-                C.append( Equation( self.U[i] == val ) )
+                C.append( Constraint( self.U[i] == val ) )
                 S = engine.Engine( self.V + self.U , self.C + self.G + C).search(ALL)
 
         d = []
@@ -387,13 +386,13 @@ class BestResponsesEager(Propagator) :
         S = e.search()
         if S != [] :
             val = e.optc.exp.exp2.getVal()
-            e = engine.Engine(vars,self.C+[ self.g, Equation( self.u == val) ])
+            e = engine.Engine(vars,self.C+[ self.g, Constraint( self.u == val) ])
             S = e.search(ALL)
 
         if S != [] :
             self.BR += S
 
-            self.C.append( Equation( clause(others,values) ) )
+            self.C.append( Constraint( clause(others,values) ) )
 
             for r in S :
                 print(intVarArrayToStr(r[1:]))
@@ -438,8 +437,8 @@ class Equilibrium(Propagator) :
         T = [] + self.oC
         for j in range(len(self.oV)) :
             if j != i :
-                C.append( Equation( self.oV[j] == t[j] ) )
-            T.append( Equation( self.oV[j] == t[j] ) )
+                C.append( Constraint( self.oV[j] == t[j] ) )
+            T.append( Constraint( self.oV[j] == t[j] ) )
 
         # Utility calculation
         e = engine.Engine([self.oU[i]] + self.oV, [self.oG[i]] + T )
@@ -448,9 +447,9 @@ class Equilibrium(Propagator) :
 
         # Looking for a best response
         if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
-            C.append( Equation( self.oU[i] < val) )
+            C.append( Constraint( self.oU[i] < val) )
         else :
-            C.append( Equation( self.oU[i] > val) )
+            C.append( Constraint( self.oU[i] > val) )
 
         e = engine.Engine( self.oV + [self.oU[i]] , [self.oG[i]] + C )
         S = e.search()
@@ -520,7 +519,7 @@ class EquilibriumDB(Propagator) :
             self.brs[i] = []
             self.cnt[i] = 1
             for j in range(i+1, n) :
-                self.cnt[i] *= self.vars[j].card()
+                self.cnt[i] *= self.oV[j].card()
                 self.brs[j] = []
                 self.cnt[j] = -999
         else :
@@ -546,19 +545,19 @@ class EquilibriumDB(Propagator) :
         C = [] + self.oC
         for j in range(len(self.oV)) :
             if j != i :
-                C.append( Equation( self.oV[j] == t[j] ) )
+                C.append( Constraint( self.oV[j] == t[j] ) )
 
         S = []
         if self.oF == [] :
             S = engine.Engine( 
                 [self.oU[i]] + self.oV,
-                [self.oG[i]] + C + [Equation( self.oU[i] == 1)]
+                [self.oG[i]] + C + [Constraint( self.oU[i] == 1)]
             ).search(ALL)
 
             if S==[] :
                 S = engine.Engine( 
                     [self.oU[i]] + self.oV,
-                    [self.oG[i]] + C + [Equation( self.oU[i] == 0)]
+                    [self.oG[i]] + C + [Constraint( self.oU[i] == 0)]
                 ).search(ALL)
         else :
             F = self.oF[i]
@@ -569,7 +568,7 @@ class EquilibriumDB(Propagator) :
                 if F[TYPE]==MAXIMIZE :  val = e.optc.exp.exp2.min
                 else :                  val = e.optc.exp.exp2.max
 
-                C.append( Equation( self.oU[i] == val ) )
+                C.append( Constraint( self.oU[i] == val ) )
                 S = engine.Engine( [self.oU[i]] + self.oV, self.oC + [self.oG[i]] + C).search(ALL)
 
         isBestResponse = False

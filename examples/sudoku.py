@@ -49,9 +49,9 @@ for i in range(9) :
     C.append( AllDifferent(Varea[i]) )
 
 # Custom constraints / Values of game
-C.append( Equation( V[ 4]==7) )
-C.append( Equation( V[10]==2) )
-C.append( Equation( V[75]==8) )
+C.append( Constraint( V[ 4]==7) )
+C.append( Constraint( V[10]==2) )
+C.append( Constraint( V[75]==8) )
 
 F = maximize(V[0])
 

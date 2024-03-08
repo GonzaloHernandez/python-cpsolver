@@ -30,7 +30,7 @@ V = [s,e,n,d,m,o,r,y]
 C = [
     AllDifferent(V),
 
-    Equation(   s*1000 + e*100 + n*10 + d*1 +
+    Constraint( s*1000 + e*100 + n*10 + d*1 +
                 m*1000 + o*100 + r*10 + e*1 ==
       m*10000 + o*1000 + n*100 + e*10 + y*1 ),
 ]
@@ -38,7 +38,7 @@ C = [
 e = Engine(V, C)
 
 t1 = time.time()
-S = e.search(0)
+S = e.search(ALL)
 t2 = time.time()
 
 for _ in S :

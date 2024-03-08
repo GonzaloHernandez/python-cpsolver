@@ -22,7 +22,7 @@ from PythonCPSolver_Trail.brancher import *
 #====================================================================
 
 class Engine :
-    def __init__(self, vars, cons, func=[0,None]) -> None:
+    def __init__(self, vars, cons=[], func=[0,None]) -> None:
         model = copy.deepcopy([vars,cons,func])
         self.vars   = model[0]  # Variables and domains
         self.cons   = model[1]  # Constraints
@@ -83,10 +83,10 @@ class Engine :
                         if self.sols == [] :
                             if self.isMaximizing() :
                                 var = IntVar( result[MIN], IntVar.INFINITE, engine=self)
-                                self.optc = Equation( self.func[1] > var )
+                                self.optc = Constraint( self.func[1] > var )
                             else :
                                 var = IntVar(-IntVar.INFINITE, result[MAX], engine=self)
-                                self.optc = Equation( self.func[1] < var )
+                                self.optc = Constraint( self.func[1] < var )
                         else :
                             if self.isMaximizing() :
                                 self.optc.exp.exp2.setge( result[MIN] )

@@ -15,25 +15,36 @@ os.system("clear")
 
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
-from PythonCPSolver_Trail.propagators import *
 
-nPlayers    = 4
-nStrategies = 4
+nPlayers    = 3
+nStrategies = 3
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
 U = IntVarArray(nPlayers,1,nStrategies,'u')
 
 G = []
 C = []
-
+F = []
 for i in range(nPlayers) :
-    Gi = Equation( U[i] == count(V,V[i]) )
-    G.append( Gi )
-    C.append( NashConstraint( V, i, Gi, maximize(U[i]) ) )
+    G.append(
+        Constraint( U[i] == count(V,V[i]) )
+    )
+    F.append(
+        maximize( U[i] )
+    )
 
-e = Engine(V+U, G+C)
+C.append( Equilibrium(V,U,G,F) )
 
-S = e.search(0)
+e = Engine(V,C)
+
+from datetime import datetime
+
+t1 = datetime.now()
+S = e.search(ALL)
+t2 = datetime.now()
+
+print(f'{t2-t1}')
+print('------')
 
 for s in S :
     print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
