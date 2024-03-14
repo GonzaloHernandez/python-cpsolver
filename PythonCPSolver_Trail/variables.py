@@ -436,7 +436,7 @@ def unoptimize() -> list:
 
 #====================================================================
 
-def IntVarArray(n,min,max,prefix='_') -> list:
+def IntVarArray(n,min=-IntVar.INFINITE,max=IntVar.INFINITE,prefix='_') -> list:
     vs = []
     for i in range(n) :
         name = prefix+str(i) if prefix != '_' else '_'

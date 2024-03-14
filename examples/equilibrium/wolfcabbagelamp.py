@@ -31,8 +31,7 @@ gl = Constraint( ul == ((~pw & pc & pl) | (pw & ~pl)) )
 
 e = Engine( 
     [pw,pc,pl] + [uw,uc,ul], 
-    [gw,gc,gl] + 
-    [EquilibriumDB([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
+    [gw,gc,gl] + [Equilibrium([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
 )
 
 S = e.search(ALL)

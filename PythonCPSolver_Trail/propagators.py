@@ -198,6 +198,44 @@ def sum(vars) -> Expression:
 
 #====================================================================
 
+class NegativeClause(Propagator) :
+    def __init__(self, vars, vals) -> None:
+        self.vars = vars
+        self.vals = vals
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        text = ""
+        for vr,vl in zip(self.vars,self.vals) :
+            text += "(" + str(vr.toStr()) + "!=" + str(vl) + ") | "
+        
+        text = text[:-2]
+        return "(" + text + ")"
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+        varfree = None
+        valfree = None
+        for vr,vl in zip(self.vars,self.vals) :
+            if not vr.isAssigned() :
+                if not varfree is None : return True
+                varfree = vr
+                valfree = vl
+            else :
+                if vr.getVal() != vl : return True
+
+        if varfree is None :
+            return False
+        
+        if varfree.min == valfree :
+            if not varfree.setMin(valfree+1) : return False
+        elif varfree.max == valfree :
+            if not varfree.setMax(valfree-1) : return False
+
+        return True
+
+#====================================================================
+
 import importlib, copy
 
 engine = importlib.import_module('PythonCPSolver_Trail.engine')
@@ -403,61 +441,6 @@ class BestResponsesEager(Propagator) :
 
 #====================================================================
 
-class Equilibrium(Propagator) :
-    def __init__(self, V, U, G, F=[], C=[]) -> None:
-        model  = copy.deepcopy([V,U,G,F,C])
-        self.oV = model[0]
-        self.oU = model[1]
-        self.oG = model[2]
-        self.oF = model[3]
-        self.oC = model[4]
-
-        self.vars  = V
-
-    #--------------------------------------------------------------
-    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return 'Equilibrium propagator'
-    
-    #--------------------------------------------------------------
-    def prune(self) :
-        for v in self.vars :
-            if not v.isAssigned() :
-                return True
-
-        t = intVarArrayToIntArray(self.vars)
-        
-        for i,v in enumerate(self.vars) :
-            if self.isThereABetterResponse(t,i) :
-                return False
-        return True
-
-    #--------------------------------------------------------------
-    def isThereABetterResponse(self,t,i) :
-        C = [] + self.oC
-        T = [] + self.oC
-        for j in range(len(self.oV)) :
-            if j != i :
-                C.append( Constraint( self.oV[j] == t[j] ) )
-            T.append( Constraint( self.oV[j] == t[j] ) )
-
-        # Utility calculation
-        e = engine.Engine([self.oU[i]] + self.oV, [self.oG[i]] + T )
-        S = e.search()
-        val = S[0][0].getVal()
-
-        # Looking for a best response
-        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
-            C.append( Constraint( self.oU[i] < val) )
-        else :
-            C.append( Constraint( self.oU[i] > val) )
-
-        e = engine.Engine( self.oV + [self.oU[i]] , [self.oG[i]] + C )
-        S = e.search()
-
-        return ( S != [] )
-
-#====================================================================
-
 class EquilibriumDB(Propagator) :
     def __init__(self, V, U, G, F=[], C=[]) -> None:
         model  = copy.deepcopy([V,U,G,F,C])
@@ -609,3 +592,141 @@ class EquilibriumDB(Propagator) :
             if self.checkNash(t) :
                 print(f'PNE* {t}')
 
+#====================================================================
+
+class Equilibrium(Propagator) :
+    def __init__(self, V, U, G, F=[], C=[]) -> None:
+        model  = copy.deepcopy([V,U,G,F,C])
+        self.oV = model[0]
+        self.oU = model[1]
+        self.oG = model[2]
+        self.oF = model[3]
+        self.oC = model[4]
+
+        self.vars  = V
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'Equilibrium propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+        for v in self.vars :
+            if not v.isAssigned() :
+                return True
+
+        t = intVarArrayToIntArray(self.vars)
+        
+        for i,v in enumerate(self.vars) :
+            if self.isThereABetterResponse(t,i) :
+                return False
+        return True
+
+    #--------------------------------------------------------------
+    def isThereABetterResponse(self,t,i) :
+        C = [] + self.oC
+        T = [] + self.oC
+        for j in range(len(self.oV)) :
+            if j != i :
+                C.append( Constraint( self.oV[j] == t[j] ) )
+            T.append( Constraint( self.oV[j] == t[j] ) )
+
+        # Utility calculation
+        e = engine.Engine([self.oU[i]] + self.oV, [self.oG[i]] + T )
+        e.propagate()               # S = e.search()
+        val = e.vars[0].getVal()    # val = S[0][0].getVal()
+
+        # Looking for a best response
+        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
+            C.append( Constraint( self.oU[i] < val) )
+        else :
+            C.append( Constraint( self.oU[i] > val) )
+
+        e = engine.Engine( self.oV + [self.oU[i]] , [self.oG[i]] + C )
+        S = e.search()
+
+        return ( S != [] )
+
+#====================================================================
+# Storing never best responses using cluses
+#====================================================================
+class EquilibriumClauses(Propagator) :
+    def __init__(self, V, U, G, F=[], C=[]) -> None:
+        model  = copy.deepcopy([V,U,G,F,C])
+        self.oV = model[0]
+        self.oU = model[1]
+        self.oG = model[2]
+        self.oF = model[3]
+        self.oC = model[4]
+
+        self.vars = V
+        self.cons = C
+        self.nver = []
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        return 'Equilibrium propagator'
+    
+    #--------------------------------------------------------------
+    def prune(self) :
+
+        for v in self.vars :
+            if not v.isAssigned() :
+                return True
+
+        t = intVarArrayToIntArray(self.vars)
+        
+        for i,v in enumerate(self.vars) :
+            if self.isThereABetterResponse(t,i) :
+                return False
+        return True
+
+    #--------------------------------------------------------------
+    def isThereABetterResponse(self,t,i) :
+        C1 = [] + self.oC   # by utility calculation
+        C2 = [] + self.oC   # by searching the best response
+        C3 = [] + self.oC   # by searching all never best responses
+        for j in range(len(self.oV)) :
+            if j != i :
+                C1.append( Constraint( self.oV[j] == t[j] ) )
+                C3.append( Constraint( self.oV[j] == t[j] ) )
+            C2.append( Constraint( self.oV[j] == t[j] ) )
+
+        # Utility calculation
+        e = engine.Engine([self.oU[i]] + self.oV, [self.oG[i]] + C2 )
+        e.propagate()               # S = e.search()
+        util = e.vars[0].getVal()   # val = S[0][0].getVal()
+
+        # Looking for a best response
+        f = None
+        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
+            C1.append( Constraint( self.oU[i] < util) )
+            f = minimize( self.oU[i] )
+        else :
+            C1.append( Constraint( self.oU[i] > util) )
+            f = maximize( self.oU[i] )
+
+        e = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C1, f )
+        S = e.search()
+
+        thereIsBetterResponse = False
+
+        if S != [] :
+            util = S[0][0].getVal()
+            thereIsBetterResponse = True
+
+        # Looking for never best responses
+        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
+            C3.append( Constraint( self.oU[i] > util ) )
+        else :
+            C3.append( Constraint( self.oU[i] < util ) )
+
+        e = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C3)
+        S = e.search(ALL)
+
+        for s in S :
+            vals = intVarArrayToIntArray(s[:-1])
+            clause = NegativeClause( self.vars, vals)
+            self.cons.append( clause )
+        
+        return thereIsBetterResponse

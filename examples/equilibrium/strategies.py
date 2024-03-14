@@ -16,31 +16,27 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 
-nPlayers    = 3
-nStrategies = 3
+nPlayers    = 4
+nStrategies = 4
 
 V = IntVarArray(nPlayers,0,nStrategies-1,'v')
-U = IntVarArray(nPlayers,1,nStrategies,'u')
+U = IntVarArray(nPlayers,prefix='u')
 
 G = []
 C = []
 F = []
 for i in range(nPlayers) :
-    G.append(
-        Constraint( U[i] == count(V,V[i]) )
-    )
-    F.append(
-        maximize( U[i] )
-    )
+    G.append( Constraint( U[i] == count(V,V[i]) ) )
+    F.append( maximize( U[i] ) )
 
-C.append( Equilibrium(V,U,G,F) )
+C.append( EquilibriumClauses(V,U,G,F) )
 
-e = Engine(V,C)
+e = Engine(V+U,C+G)
 
 from datetime import datetime
 
 t1 = datetime.now()
-S = e.search(ALL)
+S = e.search(EAGER)
 t2 = datetime.now()
 
 print(f'{t2-t1}')

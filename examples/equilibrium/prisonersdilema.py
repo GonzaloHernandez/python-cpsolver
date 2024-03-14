@@ -26,9 +26,11 @@ uy = IntVar(0,3,'uy')
 gx = Constraint( ux == ( (y*2)-x+1 ) )
 gy = Constraint( uy == ( (x*2)-y+1 ) )
 
+c = Equilibrium([x,y],[ux,uy],[gx,gy],[minimize(ux),minimize(uy)])
+
 e = Engine( 
     [ x, y] + [ux,uy], 
-    [gx,gy] 
+    [gx,gy] + [c]
 )
 
 S = e.search(ALL)

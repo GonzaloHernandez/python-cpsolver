@@ -27,14 +27,12 @@ fx = maximize(ux)
 fy = maximize(uy)
 fz = maximize(uz)
 
-c2 = Constraint( (px==2) & (py==1))
-# c1 = PNE_Eager([px,py,pz],[ux,py,uz],[gx,gy,gz],[],[fx,fy,fz])
-
-c3 = Equilibrium([px,py,pz],[ux,uy,uz],[gx,gy,gz],[fx,fy,fz],[c2])
+c1 = Constraint( (px==2) & (py==1))
+c2 = Equilibrium([px,py,pz],[ux,uy,uz],[gx,gy,gz],[fx,fy,fz],[c1])
 
 e = Engine( 
     [px,py,pz]  + [ux,uy,uz],
-    [c2]        + [gx,gy,gz]
+    [c1,c2] + [gx,gy,gz]
 )
 
 S = e.search(ALL)
