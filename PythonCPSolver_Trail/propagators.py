@@ -33,7 +33,7 @@ class Propagator :
 #====================================================================
 
 class AllDifferent(Propagator) :
-    def __init__(self, vars) -> None:
+    def __init__(self, vars:list) -> None:
         Propagator.__init__(self, )
         self.vars = vars
 
@@ -139,7 +139,7 @@ class LinearArgs(Propagator) :
 #====================================================================
     
 class Constraint(Propagator) :
-    def __init__(self, exp) -> None:
+    def __init__(self, exp:Expression) -> None:
         self.exp = exp
 
     #--------------------------------------------------------------
@@ -152,12 +152,12 @@ class Constraint(Propagator) :
         return self.exp.project(1,1)
     
     #--------------------------------------------------------------
-    def match(self, localvars, globalvars) :
+    def match(self, localvars:list, globalvars:list) :
         return Constraint( self.exp.match(localvars, globalvars) )
     
 #====================================================================
 
-def count(vars,cond) -> Expression:
+def count(vars:list, cond:Expression) -> Expression:
     exp = vars[0]==cond
     for i in range(1,len(vars)):
         exp = exp + (vars[i]==cond)
@@ -165,7 +165,7 @@ def count(vars,cond) -> Expression:
 
 #--------------------------------------------------------------
 
-def alldifferent(vars) -> Expression:
+def alldifferent(vars:list) -> Expression:
     exp = vars[0] if len(vars)==1 else None
     for i in range(len(vars)-1):
         for j in range(i+1,len(vars)):
@@ -177,8 +177,7 @@ def alldifferent(vars) -> Expression:
     return exp
 
 #--------------------------------------------------------------
-
-def clause(vars,vals) -> Expression:
+def clause(vars:list, vals:list) -> Expression:
     exp = (vars[0] != vals[0]) if len(vars)==1 else None
     for i in range(len(vars)):
         if exp is None :
@@ -190,7 +189,7 @@ def clause(vars,vals) -> Expression:
 
 #--------------------------------------------------------------
 
-def sum(vars) -> Expression:
+def sum(vars:list) -> Expression:
     exp = vars[0]
     for i in range(1,len(vars)):
         exp = exp + vars[i]
@@ -199,7 +198,7 @@ def sum(vars) -> Expression:
 #====================================================================
 
 class NegativeClause(Propagator) :
-    def __init__(self, vars, vals) -> None:
+    def __init__(self, vars:list, vals:list) -> None:
         self.vars = vars
         self.vals = vals
 
@@ -233,6 +232,38 @@ class NegativeClause(Propagator) :
             if not varfree.setMax(valfree-1) : return False
 
         return True
+
+#====================================================================
+
+class Clause(Propagator) :
+    def __init__(self, exps:list) -> None:
+        self.exps = exps
+
+    #--------------------------------------------------------------
+    def toStr(self, printview=IntVar.PRINT_MIX) -> str :
+        text = ""
+        for exp in self.exps :
+            text += exp.toStr(printview) + " | "
+        
+        text = text[:-2]
+        return "[" + text + "]"
+
+    #--------------------------------------------------------------
+    def prune(self) :
+        expfree = None
+        for exp in self.exps :
+            sat = exp.evaluateSAT()
+            if sat is None :
+                if not expfree is None : return True
+                expfree = exp
+            else :
+                if sat is True : return True
+
+        if expfree is None : return False   # All are "False"
+        
+        r = exp.project(1,1)
+
+        return r
 
 #====================================================================
 
@@ -660,9 +691,13 @@ class EquilibriumClauses(Propagator) :
         self.oC = model[4]
 
         self.vars = V
+        self.util = U
         self.cons = C
-        self.nver = []
 
+    #--------------------------------------------------------------
+    def setEngine(self, engine):
+        self.engine = engine
+    
     #--------------------------------------------------------------
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
         return 'Equilibrium propagator'
@@ -685,11 +720,11 @@ class EquilibriumClauses(Propagator) :
     def isThereABetterResponse(self,t,i) :
         C1 = [] + self.oC   # by utility calculation
         C2 = [] + self.oC   # by searching the best response
-        C3 = [] + self.oC   # by searching all never best responses
+        exps = []           # by creating a new clause
         for j in range(len(self.oV)) :
             if j != i :
                 C1.append( Constraint( self.oV[j] == t[j] ) )
-                C3.append( Constraint( self.oV[j] == t[j] ) )
+                exps.append( self.vars[j] != t[j] )
             C2.append( Constraint( self.oV[j] == t[j] ) )
 
         # Utility calculation
@@ -715,18 +750,12 @@ class EquilibriumClauses(Propagator) :
             util = S[0][0].getVal()
             thereIsBetterResponse = True
 
-        # Looking for never best responses
-        if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
-            C3.append( Constraint( self.oU[i] > util ) )
-        else :
-            C3.append( Constraint( self.oU[i] < util ) )
+        # # Looking for never best responses
+        # if self.oF != [] and self.oF[i][TYPE]==MINIMIZE :
+        #     exps.append( self.util[i] <= util )
+        # else :
+        #     exps.append( self.util[i] >= util )
 
-        e = engine.Engine( [self.oU[i]] + self.oV, [self.oG[i]] + C3)
-        S = e.search(ALL)
+        # self.engine.cons.append( Clause(exps) )
 
-        for s in S :
-            vals = intVarArrayToIntArray(s[:-1])
-            clause = NegativeClause( self.vars, vals)
-            self.cons.append( clause )
-        
         return thereIsBetterResponse

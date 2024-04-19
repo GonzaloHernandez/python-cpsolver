@@ -302,6 +302,13 @@ class Expression (Operable) :
         return [self.min, self.max]
 
     #--------------------------------------------------------------
+    def evaluateSAT(self) -> bool :
+        [min,max] = self.evaluate()
+        if min>0 : return True
+        if max<1 : return False
+        return None    
+
+    #--------------------------------------------------------------
     def project(self, nmin, nmax) :
         if nmin > nmax : return False
 
