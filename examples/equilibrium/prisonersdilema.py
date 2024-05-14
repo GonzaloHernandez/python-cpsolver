@@ -17,20 +17,20 @@ os.system('clear')
 sys.path.insert(1,'.')
 from PythonCPSolver_Trail.engine import *
 
-x = IntVar(0,1,'x')
-y = IntVar(0,1,'y')
+x = IntVar(1,2,'x')
+y = IntVar(1,2,'y')
 
 ux = IntVar(0,3,'ux')
 uy = IntVar(0,3,'uy')
 
-gx = Constraint( ux == ( (y*2)-x+1 ) )
-gy = Constraint( uy == ( (x*2)-y+1 ) )
+gx = Constraint( ux == ( (y*2)-x ) )
+gy = Constraint( uy == ( (x*2)-y ) )
 
 c = Equilibrium([x,y],[ux,uy],[gx,gy],[minimize(ux),minimize(uy)])
 
 e = Engine( 
     [ x, y] + [ux,uy], 
-    [gx,gy] + [c]
+    [gx,gy] #+ [c]
 )
 
 S = e.search(ALL)

@@ -26,12 +26,12 @@ uc = IntVar(0,1,'uc')
 ul = IntVar(0,1,'ul')
 
 gw = Constraint( uw == pw & pl)
-gc = Constraint( uc == 0 )
+gc = Constraint( (uc == 0) | (uc==1) )
 gl = Constraint( ul == ((~pw & pc & pl) | (pw & ~pl)) ) 
 
 e = Engine( 
     [pw,pc,pl] + [uw,uc,ul], 
-    [gw,gc,gl] + [Equilibrium([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
+    [gw,gc,gl] #+ [Equilibrium([pw,pc,pl],[uw,uc,ul],[gw,gc,gl])]
 )
 
 S = e.search(ALL)

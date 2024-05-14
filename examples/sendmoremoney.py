@@ -16,20 +16,12 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver_Trail.engine import *
 
-s = IntVar(1,9,'s')
-e = IntVar(0,9,'e')
-n = IntVar(0,9,'n')
-d = IntVar(0,9,'n')
-m = IntVar(1,9,'m')
-o = IntVar(0,9,'o')
-r = IntVar(0,9,'r')
-y = IntVar(0,9,'y')
-
-V = [s,e,n,d,m,o,r,y]
+V = [s,e,n,d,m,o,r,y] = IntVarArray(8,0,9)
 
 C = [
     AllDifferent(V),
-
+    Constraint( s > 0),
+    Constraint( m > 0),
     Constraint( s*1000 + e*100 + n*10 + d*1 +
                 m*1000 + o*100 + r*10 + e*1 ==
       m*10000 + o*1000 + n*100 + e*10 + y*1 ),
@@ -37,11 +29,7 @@ C = [
 
 e = Engine(V, C)
 
-t1 = time.time()
 S = e.search(ALL)
-t2 = time.time()
 
 for _ in S :
     print( intVarArrayToStr(_) )
-
-print(f"total time {t2-t1}")
