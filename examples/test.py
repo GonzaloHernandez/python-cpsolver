@@ -14,7 +14,7 @@ import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver_Trail.engine import *
+from PythonCPSolver.engine import *
 
 x = IntVar(-1,1)
 y = IntVar(-5,5)

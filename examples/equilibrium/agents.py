@@ -12,8 +12,9 @@
 
 import os,sys
 os.system("clear")
+
 sys.path.insert(1,".")
-from PythonCPSolver_Trail.engine import *
+from PythonCPSolver.engine import *
 
 #-------------------------------------------------------
 

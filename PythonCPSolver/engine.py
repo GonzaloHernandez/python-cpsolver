@@ -16,8 +16,8 @@
 
 import copy
 
-from PythonCPSolver_Trail.propagators import *
-from PythonCPSolver_Trail.brancher import *
+from PythonCPSolver.propagators import *
+from PythonCPSolver.brancher import *
 
 #====================================================================
 

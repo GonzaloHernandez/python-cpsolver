@@ -11,11 +11,10 @@
 #====================================================================
 
 import os,sys
-
 os.system('clear')
 
 sys.path.insert(1,'.')
-from PythonCPSolver_Trail.engine import *
+from PythonCPSolver.engine import *
 
 pw = IntVar(0,1,'pw')
 pc = IntVar(0,1,'pc')

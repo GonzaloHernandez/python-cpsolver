@@ -1,6 +1,6 @@
 #====================================================================
 # Constraint Games solver using Simple CP Solver 
-# Current version 1.0 (Using a PythonCPSolver_Trail)
+# Current version 1.0 (Using a PythonCPSolver) Trail version
 #
 # Gonzalo Hernandez
 # gonzalohernandez@hotmail.com
@@ -15,7 +15,7 @@ import sys
 #--------------------------------------------------------------
 
 sys.path.insert(1,".")
-from PythonCPSolver_Trail.engine import *
+from PythonCPSolver.engine import *
 
 #--------------------------------------------------------------
 

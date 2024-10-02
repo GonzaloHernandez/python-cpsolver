@@ -14,9 +14,9 @@ import os,sys, time
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver_Trail.engine import *
+from PythonCPSolver.engine import *
 
-n = 5
+n = 4
 
 V = IntVarArray(n*n,1,n*n)
 t = IntVar()

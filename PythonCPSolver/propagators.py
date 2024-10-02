@@ -14,7 +14,7 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolver_Trail.variables import *
+from PythonCPSolver.variables import *
 
 #====================================================================
 
@@ -269,7 +269,7 @@ class Clause(Propagator) :
 
 import importlib, copy
 
-engine = importlib.import_module('PythonCPSolver_Trail.engine')
+engine = importlib.import_module('PythonCPSolver.engine')
 
 #====================================================================
 
