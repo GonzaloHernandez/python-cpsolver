@@ -21,8 +21,8 @@ y = IntVar(1,5)
 
 
 e = Engine(
-    [x],
-    [ Constraint( clause([x,y],[1,1]) ) ]
+    [x,y],
+    [ Constraint( count([x,y],2) == 2 ) ]
 )
 
 S = e.search(ALL)

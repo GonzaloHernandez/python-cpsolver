@@ -426,6 +426,11 @@ class Expression (Operable) :
 
         return Expression(exp1, self.oper, exp2)
 
+    #--------------------------------------------------------------
+    def setEngine(self, engine) :
+        self.exp1.setEngine(engine)
+        self.exp2.setEngine(engine)
+
 #====================================================================
 
 def minimize(exp) -> list:

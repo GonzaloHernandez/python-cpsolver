@@ -154,7 +154,11 @@ class Constraint(Propagator) :
     #--------------------------------------------------------------
     def match(self, localvars:list, globalvars:list) :
         return Constraint( self.exp.match(localvars, globalvars) )
-    
+
+    #--------------------------------------------------------------
+    def setEngine(self, engine) :
+        self.exp.setEngine(engine)
+
 #====================================================================
 
 def count(vars:list, cond:Expression) -> Expression:
