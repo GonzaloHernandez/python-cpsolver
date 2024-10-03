@@ -16,13 +16,13 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver.engine import *
 
-x = IntVar(-1,1)
-y = IntVar(-5,5)
+x = IntVar(1,5)
+y = IntVar(1,5)
 
 
 e = Engine(
-    [x,y],
-    [ Constraint(y == (x*2)) ]
+    [x],
+    [ Constraint( clause([x,y],[1,1]) ) ]
 )
 
 S = e.search(ALL)
