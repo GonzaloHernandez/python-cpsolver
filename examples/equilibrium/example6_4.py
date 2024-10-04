@@ -43,5 +43,5 @@ e = Engine(V,C)
 S = e.search(ALL)
 
 for s in S :
-    print(intVarArrayToIntArray(s))
+    print(toInts(s))
 

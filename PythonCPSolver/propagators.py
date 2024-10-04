@@ -326,7 +326,7 @@ class PNE_Eager(Propagator) :
             for v in self.vars :
                 s.append( IntVar(v.min, v.max, v.name) )
 
-            t = intVarArrayToIntArray(s)
+            t = toInts(s)
             self.checkNash(t, self.n-1)
 
         for c in self.cons :
@@ -356,7 +356,7 @@ class PNE_Eager(Propagator) :
                     S = engine.Engine(self.V + self.U , self.C + self.G + C ).search(ALL)
 
                     for s in S :
-                        dt = intVarArrayToIntArray(s,self.n)
+                        dt = toInts(s,self.n)
                         d.append(dt)
 
                 self.insert_table(i,d)
@@ -514,7 +514,7 @@ class EquilibriumDB(Propagator) :
         self.analyseSubscape(newsubspace)
 
         if allAssigned :
-            t = intVarArrayToIntArray(self.vars)
+            t = toInts(self.vars)
             isNash = self.checkNash(t)
             return isNash
 
@@ -592,7 +592,7 @@ class EquilibriumDB(Propagator) :
         isBestResponse = False
         d = []
         for s in S :
-            r = intVarArrayToIntArray(s[1:])
+            r = toInts(s[1:])
             d.append(r)
             if r == t :
                 isBestResponse = True
@@ -650,7 +650,7 @@ class Equilibrium(Propagator) :
             if not v.isAssigned() :
                 return True
 
-        t = intVarArrayToIntArray(self.vars)
+        t = toInts(self.vars)
         
         for i,v in enumerate(self.vars) :
             if self.isThereABetterResponse(t,i) :
@@ -713,7 +713,7 @@ class EquilibriumClauses(Propagator) :
             if not v.isAssigned() :
                 return True
 
-        t = intVarArrayToIntArray(self.vars)
+        t = toInts(self.vars)
         
         for i,v in enumerate(self.vars) :
             if self.isThereABetterResponse(t,i) :

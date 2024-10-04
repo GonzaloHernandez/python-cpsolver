@@ -457,7 +457,7 @@ def IntVarArray(n,min=-IntVar.INFINITE,max=IntVar.INFINITE,prefix='_') -> list:
 
 #--------------------------------------------------------------
 
-def intVarArrayToStr(vars, printview=IntVar.PRINT_VALUE) -> str:
+def toStrs(vars, printview=IntVar.PRINT_VALUE) -> str:
     text = ''
     for v in vars : 
         text += v.toStr(printview) + ' '
@@ -466,7 +466,7 @@ def intVarArrayToStr(vars, printview=IntVar.PRINT_VALUE) -> str:
 
 #--------------------------------------------------------------
 
-def intVarArrayToIntArray(vars, len=0) -> list:
+def toInts(vars, len=0) -> list:
     intArray = []
     for i,v in enumerate(vars) : 
         if len>0 and i == len : break

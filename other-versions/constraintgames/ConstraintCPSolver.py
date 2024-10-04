@@ -73,7 +73,7 @@ class EngineGame(Engine) :
                         s.append( IntVar(v.min, v.max, v.name) )
 
                     #------------------------------------
-                    t = intVarArrayToIntArray(s)
+                    t = toInts(s)
                     self.checkNash(t, self.n-1)
                     #------------------------------------
                 
@@ -122,7 +122,7 @@ class EngineGame(Engine) :
                     S = Engine(self.V + self.U , self.C + C ).search(ALL)
 
                     for s in S :
-                        dt = intVarArrayToIntArray(s,self.n)
+                        dt = toInts(s,self.n)
                         d.append(dt)
 
                 self.insert_table(i,d)
