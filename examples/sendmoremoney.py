@@ -28,8 +28,7 @@ C = [
 ]
 
 e = Engine(V, C)
-
-S = e.search(ALL)
+S = e.search()
 
 for _ in S :
     print( toInts(_) )
