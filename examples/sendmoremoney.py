@@ -10,11 +10,11 @@
 #   examples
 #====================================================================
 
-import os,sys,time
+import os,sys
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver.engine import *
+from PythonCPSolver import *
 
 V = [s,e,n,d,m,o,r,y] = IntVarArray(8,0,9)
 
@@ -32,4 +32,4 @@ e = Engine(V, C)
 S = e.search(ALL)
 
 for _ in S :
-    print( intVarArrayToStr(_) )
+    print( toInts(_) )

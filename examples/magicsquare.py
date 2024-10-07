@@ -14,7 +14,7 @@ import os,sys, time
 os.system("clear")
 
 sys.path.insert(1,".")
-from PythonCPSolver.engine import *
+from PythonCPSolver import *
 
 n = 4
 

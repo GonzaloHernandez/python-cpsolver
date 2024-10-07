@@ -30,4 +30,4 @@ c = Equilibrium(V,U,G,[],[])
 S = Engine(V,[c]).search(ALL)
 
 for s in S :
-    print(intVarArrayToStr(s))
+    print( toInts(s))

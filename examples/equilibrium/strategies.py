@@ -46,4 +46,4 @@ print(f'{t2-t1}')
 print('------')
 
 for s in S :
-    print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
+    print(toStrs(s,IntVar.PRINT_VALUE))

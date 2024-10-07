@@ -35,7 +35,7 @@ e = Engine(
 S = e.search(ALL)
 
 for s in S :
-    print( intVarArrayToStr(s) )
+    print( toInts(s) )
 
 # -------------------------------------------------------
 # Pendant to review the multiplication in Constraint

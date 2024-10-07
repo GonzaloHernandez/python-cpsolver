@@ -16,8 +16,8 @@
 
 import copy
 
-from PythonCPSolver.propagators import *
-from PythonCPSolver.brancher import *
+from .propagators import *
+from .brancher import *
 
 #====================================================================
 
@@ -103,7 +103,7 @@ class Engine :
                             s.append( IntVar(v.min, v.max, v.name) )
 
                         if tops==EAGER :
-                            print(intVarArrayToStr(s,IntVar.PRINT_VALUE))
+                            print(toStrs(s,IntVar.PRINT_VALUE))
                         else :
                             self.sols.append( s )
                         

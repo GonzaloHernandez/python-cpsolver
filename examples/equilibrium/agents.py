@@ -39,4 +39,4 @@ eq = Equilibrium( V, U, [ga,gb,gc], [fa,fb,fc], [c2] )
 
 S = Engine( V, [eq,c1,c2] ).search(ALL)
 
-for s in S : print( intVarArrayToStr(s) )
+for s in S : print( toInts(s) )

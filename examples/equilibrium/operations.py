@@ -13,7 +13,7 @@
 import os,sys
 os.system("clear")
 
-sys.path.insert(1,".")
+sys.path.insert(1,"./other-versions")
 from constraintgames.ConstraintCPSolver import *
 
 px,py,pz = IntVarArray(3,  1, 3,'v')
@@ -38,6 +38,6 @@ e = Engine(
 S = e.search(ALL)
 
 for s in S :
-    print(intVarArrayToStr(s, IntVar.PRINT_VALUE))
+    print( toStrs (s, IntVar.PRINT_VALUE))
 
 

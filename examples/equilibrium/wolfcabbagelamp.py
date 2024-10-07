@@ -36,4 +36,4 @@ e = Engine(
 S = e.search(ALL)
 
 for s in S :
-    print( intVarArrayToStr(s,IntVar.PRINT_VALUE) )
+    print( toStrs(s,IntVar.PRINT_VALUE) )

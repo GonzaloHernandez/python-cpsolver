@@ -14,7 +14,7 @@
 #       brancher.py
 #====================================================================
 
-from PythonCPSolver.variables import *
+from .variables import *
 
 #====================================================================
 
@@ -39,7 +39,7 @@ class AllDifferent(Propagator) :
 
     #--------------------------------------------------------------
     def toStr(self, printview=IntVar.PRINT_MIX) -> str :
-        return 'alldifferent('+intVarArrayToStr(self.vars ,printview)+')'
+        return 'alldifferent('+toStrs(self.vars ,printview)+')'
 
     #--------------------------------------------------------------
     def prune(self) :
@@ -468,7 +468,7 @@ class BestResponsesEager(Propagator) :
             self.C.append( Constraint( clause(others,values) ) )
 
             for r in S :
-                print(intVarArrayToStr(r[1:]))
+                print(toStrs(r[1:]))
 
         self.p.min, self.p.max  = [min, max]
 
