@@ -151,6 +151,7 @@ class Engine :
 
 #====================================================================
 
+# for debugging purposes
 def stepToStr(step) -> str:
     text  = step[0].name
     text += ' L ' if step[1]==1 else ' R '

@@ -16,13 +16,15 @@ os.system("clear")
 sys.path.insert(1,".")
 from PythonCPSolver import *
 
-x,y,z,w = IntVarArray(4, 1, 711)
-
 t = 711
+
+x,y,z,w = IntVarArray(4, 1, t)
+
 c1 = Constraint( x + y + z + w == t )
 c2 = Constraint( x * y * z * w == t*100*100*100 )
 
 e = Engine( [x,y,z,w], [c1,c2,Constraint(x==150)] )
 
 for _ in e.search() :
-    print ( [ v/100 for v in toInts(_) ] )
+    for v in toInts(_) :
+        print (f"${v/100:.2f}")
